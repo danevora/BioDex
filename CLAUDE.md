@@ -11,6 +11,7 @@ BioDex is a Pokédex-style web app for discovering and collecting real-world ani
 - **Frontend**: Next.js (App Router)
 - **UI Components**: shadcn/ui
 - **Styling**: Tailwind CSS
+- **Package Manager**: Yarn
 - **Backend**: FastAPI (Python)
 
 ## Core Features
@@ -24,3 +25,8 @@ BioDex is a Pokédex-style web app for discovering and collecting real-world ani
 - Mobile-first, responsive design
 - Simple and fun - focus on the capture-and-collect loop
 - No unnecessary complexity
+
+## Development Notes
+
+- Offer to install any dev dependencies or CLI tools needed along the way
+- Use `yarn` for all frontend package management
