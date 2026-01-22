@@ -27,6 +27,11 @@ node_modules/
 .vscode/
 .idea/
 
+# Python
+venv/
+__pycache__/
+*.pyc
+
 # Misc
 *.swp
 *.swo
