@@ -75,7 +75,7 @@ model Animal {
   regions        String[]
   blurb          String   @db.Text
   hint           String   @default("")
-  defaultImage   String
+  defaultImage   String?
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

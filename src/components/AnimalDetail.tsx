@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Animal } from "@/types/animal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,13 +8,12 @@ import { Check } from "lucide-react";
 
 interface AnimalDetailProps {
   animal: Animal;
-  userImage?: string;
+  userImage: string;
   onClose: () => void;
 }
 
 export function AnimalDetail({ animal, userImage, onClose }: AnimalDetailProps) {
-  const displayImage = userImage || animal.defaultImage;
-  const isCaptured = !!userImage;
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
     <div
@@ -25,19 +25,23 @@ export function AnimalDetail({ animal, userImage, onClose }: AnimalDetailProps) 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative aspect-video">
-          <Image
-            src={displayImage}
-            alt={animal.commonName}
-            fill
-            className="object-cover rounded-t-lg"
-            unoptimized={displayImage.includes("supabase.co")}
-          />
-          {isCaptured && (
-            <div className="absolute top-3 right-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-              <Check className="h-4 w-4" />
-              Your Capture
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-gray-100 flex items-center justify-center rounded-t-lg">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
             </div>
           )}
+          <Image
+            src={userImage}
+            alt={animal.commonName}
+            fill
+            className={`object-cover rounded-t-lg ${imageLoaded ? "" : "opacity-0"}`}
+            unoptimized={userImage.includes("supabase.co")}
+            onLoad={() => setImageLoaded(true)}
+          />
+          <div className="absolute top-3 right-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+            <Check className="h-4 w-4" />
+            Your Capture
+          </div>
         </div>
         <CardHeader>
           <CardTitle>{animal.commonName}</CardTitle>

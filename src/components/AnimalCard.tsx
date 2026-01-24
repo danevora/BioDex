@@ -24,13 +24,13 @@ export function AnimalCard({
       onClick={isCaptured ? onClick : undefined}
     >
       <div className="relative aspect-square">
-        {isCaptured ? (
+        {isCaptured && userImage ? (
           <Image
-            src={userImage || animal.defaultImage}
+            src={userImage}
             alt={animal.commonName}
             fill
             className="object-cover"
-            unoptimized={userImage?.includes("supabase.co")}
+            unoptimized={userImage.includes("supabase.co")}
           />
         ) : (
           <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">

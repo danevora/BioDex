@@ -6,27 +6,27 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 interface ImageUploaderProps {
-  onImageSelect: (file: File) => void;
+  onImageSelect: (file: File, previewUrl: string) => void;
   selectedImage: File | null;
+  previewUrl: string | null;
   onClear: () => void;
 }
 
 export function ImageUploader({
   onImageSelect,
   selectedImage,
+  previewUrl,
   onClear,
 }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileSelect = useCallback(
     (file: File) => {
       if (file && file.type.startsWith("image/")) {
         const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-        onImageSelect(file);
+        onImageSelect(file, url);
       }
     },
     [onImageSelect]
@@ -58,10 +58,6 @@ export function ImageUploader({
   };
 
   const handleClear = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setPreviewUrl(null);
     onClear();
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (cameraInputRef.current) cameraInputRef.current.value = "";

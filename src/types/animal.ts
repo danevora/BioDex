@@ -10,7 +10,7 @@ export interface Animal {
   regions: string[];
   blurb: string;
   hint: string;
-  defaultImage: string;
+  defaultImage?: string;
   isActive?: boolean;
 }
 

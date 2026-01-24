@@ -16,7 +16,6 @@ const animals = [
     blurb:
       "The domestic dog is humanity's oldest companion, descended from wolves and domesticated over 15,000 years ago. They display remarkable diversity in size, shape, and behavior across hundreds of breeds. Dogs are known for their loyalty, trainability, and deep social bonds with humans.",
     hint: "A loyal mammal often found in homes and parks",
-    defaultImage: "/images/dog.jpg",
   },
   {
     id: "cat",
@@ -31,7 +30,6 @@ const animals = [
     blurb:
       "The domestic cat is a small predator that has lived alongside humans for nearly 10,000 years. They retain strong hunting instincts and are crepuscular, most active at dawn and dusk. Cats are valued for their independence, agility, and affectionate yet self-reliant nature.",
     hint: "An independent feline companion found worldwide",
-    defaultImage: "/images/cat.jpg",
   },
   {
     id: "frog",
@@ -46,7 +44,6 @@ const animals = [
     blurb:
       "The common frog is a widespread amphibian found across Europe in moist habitats near water. They breathe through their skin and undergo metamorphosis from aquatic tadpoles to terrestrial adults. Frogs are important indicators of environmental health and play a key role in controlling insect populations.",
     hint: "An amphibian found near ponds and wetlands",
-    defaultImage: "/images/frog.jpg",
   },
 ];
 

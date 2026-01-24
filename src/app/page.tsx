@@ -14,14 +14,15 @@ import { Animal } from "@/types/animal";
 export default function Home() {
   const { data: session, status } = useSession();
   const isAuthenticated = !!session?.user;
-  const isLoading = status === "loading";
+  const isAuthLoading = status === "loading";
 
   const { data: animals = [] } = useAnimals();
-  const { data: captures = [] } = useCaptures();
+  const { data: captures = [], isLoading: isCapturesLoading } = useCaptures();
   const { data: stats } = useUserStats();
   const createCapture = useCreateCapture();
 
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
+  const [newCaptureImageUrl, setNewCaptureImageUrl] = useState<string | null>(null);
   const [captureModalOpen, setCaptureModalOpen] = useState(false);
 
   // Build capture map: animalId -> imageUrl
@@ -38,16 +39,25 @@ export default function Home() {
     image: File,
     confidence?: number
   ) => {
-    await createCapture.mutateAsync({ animalId, image, confidence });
+    const capture = await createCapture.mutateAsync({ animalId, image, confidence });
     const animal = animals.find((a) => a.id === animalId);
     if (animal) {
+      setNewCaptureImageUrl(capture.imageUrl);
       setSelectedAnimal(animal);
     }
   };
 
+  const handleCloseDetail = () => {
+    setSelectedAnimal(null);
+    setNewCaptureImageUrl(null);
+  };
+
+  // Use new capture URL if available, otherwise fall back to capture map
   const selectedAnimalUserImage = selectedAnimal
-    ? captureMap.get(selectedAnimal.id)
+    ? newCaptureImageUrl || captureMap.get(selectedAnimal.id)
     : undefined;
+
+  const isLoading = isAuthLoading || (isAuthenticated && isCapturesLoading);
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,7 +80,7 @@ export default function Home() {
       </header>
 
       <main className="container mx-auto px-4 py-6">
-        {!isLoading && !isAuthenticated && (
+        {!isAuthLoading && !isAuthenticated && (
           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center">
             <p className="text-emerald-800">
               Sign in to start capturing animals and build your collection!
@@ -102,11 +112,11 @@ export default function Home() {
         </>
       )}
 
-      {selectedAnimal && (
+      {selectedAnimal && selectedAnimalUserImage && (
         <AnimalDetail
           animal={selectedAnimal}
           userImage={selectedAnimalUserImage}
-          onClose={() => setSelectedAnimal(null)}
+          onClose={handleCloseDetail}
         />
       )}
     </div>

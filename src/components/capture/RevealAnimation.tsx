@@ -3,16 +3,16 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import type { Animal } from "@/types/animal";
 
 interface RevealAnimationProps {
   animal: Animal;
+  imageUrl: string;
   onClose: () => void;
 }
 
-export function RevealAnimation({ animal, onClose }: RevealAnimationProps) {
+export function RevealAnimation({ animal, imageUrl, onClose }: RevealAnimationProps) {
   useEffect(() => {
     const duration = 2000;
     const end = Date.now() + duration;
@@ -92,11 +92,11 @@ export function RevealAnimation({ animal, onClose }: RevealAnimationProps) {
 
         {/* Animal image */}
         <div className="relative aspect-square">
-          <Image
-            src={animal.defaultImage}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
             alt={animal.commonName}
-            fill
-            className="object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         </div>
 

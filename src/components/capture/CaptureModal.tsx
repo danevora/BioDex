@@ -31,17 +31,22 @@ export function CaptureModal({
 }: CaptureModalProps) {
   const [step, setStep] = useState<CaptureStep>("upload");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [result, setResult] = useState<IdentifyResult | null>(null);
   const [matchedAnimal, setMatchedAnimal] = useState<Animal | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const resetState = useCallback(() => {
     setStep("upload");
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
     setSelectedImage(null);
+    setImagePreviewUrl(null);
     setResult(null);
     setMatchedAnimal(null);
     setError(null);
-  }, []);
+  }, [imagePreviewUrl]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -50,12 +55,17 @@ export function CaptureModal({
     onOpenChange(open);
   };
 
-  const handleImageSelect = (file: File) => {
+  const handleImageSelect = (file: File, previewUrl: string) => {
     setSelectedImage(file);
+    setImagePreviewUrl(previewUrl);
   };
 
   const handleClearImage = () => {
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
     setSelectedImage(null);
+    setImagePreviewUrl(null);
   };
 
   const handleIdentify = async () => {
@@ -109,6 +119,7 @@ export function CaptureModal({
               <ImageUploader
                 onImageSelect={handleImageSelect}
                 selectedImage={selectedImage}
+                previewUrl={imagePreviewUrl}
                 onClear={handleClearImage}
               />
               {selectedImage && (
@@ -148,8 +159,8 @@ export function CaptureModal({
                 </Button>
               </div>
             )}
-            {result.success && result.matched && matchedAnimal ? (
-              <RevealAnimation animal={matchedAnimal} onClose={handleCapture} />
+            {result.success && result.matched && matchedAnimal && selectedImage && imagePreviewUrl ? (
+              <RevealAnimation animal={matchedAnimal} imageUrl={imagePreviewUrl} onClose={handleCapture} />
             ) : result.success && !result.matched ? (
               <NoMatchResult
                 detectedAnimal={result.detected_animal}
