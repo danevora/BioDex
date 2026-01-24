@@ -28,9 +28,9 @@ A Pokédex for the real world. Discover, photograph, and collect animals around 
 ### Installation
 
 1. Clone the repository
+
 2. Install dependencies:
    ```bash
-   cd frontend
    npm install
    ```
 
@@ -59,7 +59,7 @@ A Pokédex for the real world. Discover, photograph, and collect animals around 
 
 ## Tech Stack
 
-- **Frontend**: Next.js (App Router), React, Tailwind CSS
+- **Framework**: Next.js (App Router), React, Tailwind CSS
 - **Database**: PostgreSQL with Prisma
 - **Auth**: NextAuth.js
 - **Storage**: Supabase

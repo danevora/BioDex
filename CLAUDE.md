@@ -8,7 +8,7 @@ BioDex is a Pokédex-style web app for discovering and collecting real-world ani
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **UI Components**: shadcn/ui
 - **Styling**: Tailwind CSS
 - **Database**: PostgreSQL with Prisma ORM
@@ -41,20 +41,18 @@ BioDex is a Pokédex-style web app for discovering and collecting real-world ani
 ### Environment Setup
 Copy `.env.example` to `.env` and fill in the values:
 ```bash
-cd frontend
 cp .env.example .env
 ```
 
 ### Database Setup
 ```bash
-cd frontend
 npx prisma migrate dev    # Run migrations
 npx prisma db seed        # Seed initial animals
 ```
 
 ### Start Development Server
 ```bash
-cd frontend && npm run dev
+npm run dev
 ```
 Runs on http://localhost:3000
 
@@ -68,8 +66,8 @@ Runs on http://localhost:3000
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID (optional) |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth secret (optional) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role/secret key |
 | `ANTHROPIC_API_KEY` | Anthropic API key for Claude |
 
 ## Database
@@ -84,6 +82,5 @@ npx prisma generate        # Regenerate Prisma client
 
 ## Development Notes
 
-- Use `npm` for package management (yarn has issues on this system)
-- All backend logic is in Next.js API routes (no separate backend)
-- The `backend.deprecated/` folder contains the old FastAPI backend for reference
+- Use `npm` for package management
+- All backend logic is in Next.js API routes under `src/app/api/`
