@@ -70,6 +70,13 @@ export default function Home() {
       </header>
 
       <main className="container mx-auto px-4 py-6">
+        {!isLoading && !isAuthenticated && (
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center">
+            <p className="text-emerald-800">
+              Sign in to start capturing animals and build your collection!
+            </p>
+          </div>
+        )}
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -78,7 +85,6 @@ export default function Home() {
           <DexGrid
             animals={animals}
             captureMap={captureMap}
-            isAuthenticated={isAuthenticated}
             onAnimalClick={setSelectedAnimal}
           />
         )}

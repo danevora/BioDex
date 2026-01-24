@@ -9,6 +9,7 @@ export interface Animal {
   habitat: string;
   regions: string[];
   blurb: string;
+  hint: string;
   defaultImage: string;
   isActive?: boolean;
 }

@@ -3,13 +3,12 @@
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Animal } from "@/types/animal";
-import { Lock, Check } from "lucide-react";
+import { Check, HelpCircle } from "lucide-react";
 
 interface AnimalCardProps {
   animal: Animal;
   isCaptured?: boolean;
   userImage?: string;
-  isLocked?: boolean;
   onClick?: () => void;
 }
 
@@ -17,30 +16,26 @@ export function AnimalCard({
   animal,
   isCaptured = false,
   userImage,
-  isLocked = false,
   onClick,
 }: AnimalCardProps) {
-  const displayImage = isCaptured && userImage ? userImage : animal.defaultImage;
-  const showGrayscale = !isCaptured && !isLocked;
-
   return (
     <Card
-      className="cursor-pointer overflow-hidden transition-transform hover:scale-105 relative"
-      onClick={onClick}
+      className={`overflow-hidden relative ${isCaptured ? "cursor-pointer transition-transform hover:scale-105" : ""}`}
+      onClick={isCaptured ? onClick : undefined}
     >
       <div className="relative aspect-square">
-        {isLocked ? (
-          <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-            <Lock className="h-8 w-8 text-gray-400" />
-          </div>
-        ) : (
+        {isCaptured ? (
           <Image
-            src={displayImage}
+            src={userImage || animal.defaultImage}
             alt={animal.commonName}
             fill
-            className={`object-cover ${showGrayscale ? "grayscale opacity-50" : ""}`}
-            unoptimized={displayImage.includes("supabase.co")}
+            className="object-cover"
+            unoptimized={userImage?.includes("supabase.co")}
           />
+        ) : (
+          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+            <HelpCircle className="h-12 w-12 text-gray-300" />
+          </div>
         )}
         {isCaptured && (
           <div className="absolute top-2 right-2 bg-emerald-500 text-white rounded-full p-1">
@@ -49,12 +44,18 @@ export function AnimalCard({
         )}
       </div>
       <CardContent className="p-3">
-        <h3 className="font-semibold text-sm truncate">
-          {isLocked ? "???" : animal.commonName}
-        </h3>
-        <p className="text-xs text-muted-foreground italic truncate">
-          {isLocked ? "Sign in to discover" : animal.scientificName}
-        </p>
+        {isCaptured ? (
+          <>
+            <h3 className="font-semibold text-sm truncate">{animal.commonName}</h3>
+            <p className="text-xs text-muted-foreground italic truncate">
+              {animal.scientificName}
+            </p>
+          </>
+        ) : (
+          <p className="text-xs text-muted-foreground italic">
+            {animal.hint || "A mysterious creature..."}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

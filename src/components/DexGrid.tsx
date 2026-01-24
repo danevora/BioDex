@@ -6,14 +6,12 @@ import { AnimalCard } from "./AnimalCard";
 interface DexGridProps {
   animals: Animal[];
   captureMap?: Map<string, string>;
-  isAuthenticated?: boolean;
   onAnimalClick?: (animal: Animal) => void;
 }
 
 export function DexGrid({
   animals,
   captureMap = new Map(),
-  isAuthenticated = false,
   onAnimalClick,
 }: DexGridProps) {
   return (
@@ -28,7 +26,6 @@ export function DexGrid({
             animal={animal}
             isCaptured={isCaptured}
             userImage={userImage}
-            isLocked={!isAuthenticated}
             onClick={() => onAnimalClick?.(animal)}
           />
         );
