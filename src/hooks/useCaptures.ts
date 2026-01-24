@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { Capture } from "@/types/animal";
 
 async function fetchCaptures(): Promise<Capture[]> {
@@ -40,9 +41,13 @@ async function createCapture(params: CreateCaptureParams): Promise<Capture> {
 }
 
 export function useCaptures() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
   return useQuery({
-    queryKey: ["captures"],
+    queryKey: ["captures", userId],
     queryFn: fetchCaptures,
+    enabled: !!userId,
   });
 }
 

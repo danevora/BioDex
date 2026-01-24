@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { UserStats } from "@/types/animal";
 
 async function fetchUserStats(): Promise<UserStats> {
@@ -13,8 +14,12 @@ async function fetchUserStats(): Promise<UserStats> {
 }
 
 export function useUserStats() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
   return useQuery({
-    queryKey: ["userStats"],
+    queryKey: ["userStats", userId],
     queryFn: fetchUserStats,
+    enabled: !!userId,
   });
 }

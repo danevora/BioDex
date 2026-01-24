@@ -84,3 +84,19 @@ npx prisma generate        # Regenerate Prisma client
 
 - Use `npm` for package management
 - All backend logic is in Next.js API routes under `src/app/api/`
+
+## Glossary
+
+Key domain terminology used throughout the codebase:
+
+| Term | Definition |
+|------|------------|
+| **Animal** | A species record in the BioDex catalog. Contains taxonomic info (class, order, family), common/scientific names, habitat, regions, and a default image. |
+| **Capture** | A user's documented encounter with an animal. Created when a user photographs an animal and AI identifies it. Stored with userId, animalId, imageUrl, and confidence score. One capture per animal per user. |
+| **Dex** | Short for Pokédex. The grid-based UI displaying all animals with visual indicators of capture status (color for captured, grayscale for undiscovered). |
+| **Identification** | The AI-powered process of analyzing a user's photo to determine what animal is present and match it to the catalog. |
+| **Matched** | When AI successfully identifies an animal in the photo that exists in the BioDex catalog. Returns the animal_id and confidence score. |
+| **Confidence** | A score (0.0-1.0) indicating AI certainty that the detected animal matches a catalog entry. |
+| **Captured (isCaptured)** | Boolean state indicating a user has successfully captured a specific animal. Shown with a green checkmark and the user's photo. |
+| **Locked** | State of an animal card when the user is not authenticated. Shows a lock icon and "???" for the name. |
+| **Catalog** | The complete collection of active animals available in BioDex that can be matched during identification. |
