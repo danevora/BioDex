@@ -9,5 +9,23 @@ export interface Animal {
   habitat: string;
   regions: string[];
   blurb: string;
-  image: string;
+  defaultImage: string;
+  isActive?: boolean;
+}
+
+export interface Capture {
+  id: string;
+  userId: string;
+  animalId: string;
+  imageUrl: string;
+  imagePath: string;
+  confidence: number | null;
+  capturedAt: string;
+  animal?: Animal;
+}
+
+export interface UserStats {
+  captureCount: number;
+  totalAnimals: number;
+  completionPercentage: number;
 }

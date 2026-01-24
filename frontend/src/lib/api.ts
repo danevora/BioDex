@@ -1,5 +1,3 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 export interface IdentifyMatchResult {
   success: true;
   matched: true;
@@ -28,7 +26,7 @@ export async function identifyAnimal(imageFile: File): Promise<IdentifyResult> {
   formData.append("image", imageFile);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/identify`, {
+    const response = await fetch("/api/identify", {
       method: "POST",
       body: formData,
     });
@@ -37,7 +35,7 @@ export async function identifyAnimal(imageFile: File): Promise<IdentifyResult> {
       const error = await response.json().catch(() => ({}));
       return {
         success: false,
-        error: error.detail || `Request failed with status ${response.status}`,
+        error: error.error || `Request failed with status ${response.status}`,
       };
     }
 

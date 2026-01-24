@@ -93,7 +93,7 @@ export function RevealAnimation({ animal, onClose }: RevealAnimationProps) {
         {/* Animal image */}
         <div className="relative aspect-square">
           <Image
-            src={animal.image}
+            src={animal.defaultImage}
             alt={animal.commonName}
             fill
             className="object-cover"

@@ -2,31 +2,65 @@
 
 A Pokédex for the real world. Discover, photograph, and collect animals around you.
 
-## Vision
+## Features
 
-BioDex turns nature exploration into a collecting game. See an animal, snap a photo, and AI identifies it for your collection. Watch your dex fill up as you discover more species.
+- **User Accounts**: Sign up with email/password or Google OAuth
+- **AI Identification**: Point your camera at an animal and AI identifies the species
+- **Personal Collection**: Your captures are saved to your account with your photos
+- **Discovery**: Learn about each animal's classification, habitat, and fun facts
 
-## Core Experience
+## How It Works
 
-### The Dex
-A grid of animal entries - captured species show your photo, undiscovered ones appear as mystery silhouettes. At a glance, see your progress and what's left to find.
+1. **Sign In**: Create an account or sign in with Google
+2. **Capture**: Take a photo of an animal you find
+3. **Identify**: AI identifies the species and adds it to your dex
+4. **Collect**: Build your collection - each entry shows your photo
 
-### Capture
-Point your camera at an animal and take a photo. AI identifies the species and adds it to your dex with your photo as the entry image.
+## Setup
 
-### Discovery
-Each dex entry reveals details about the animal: name, scientific classification, habitat, and fun facts. The more you capture, the more you learn.
+### Prerequisites
 
-## Goals
+- Node.js 20.19+ or 22.12+
+- PostgreSQL database
+- Supabase account (for image storage)
+- Anthropic API key (for AI identification)
 
-- **Responsive web app**: Built for web, works seamlessly on mobile browsers
-- **Simple and fun**: The joy is in the capture-and-collect loop
-- **AI-powered identification**: No manual tagging - just point, shoot, and discover
+### Installation
 
-## POC Scope
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   cd frontend
+   npm install
+   ```
 
-A working demo with:
-- Dex grid view showing captured vs undiscovered animals
-- Camera capture with AI species identification
-- Animal detail view with photo and basic info
-- Local storage for captures (no account needed)
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your values
+   ```
+
+4. Set up the database:
+   ```bash
+   npx prisma migrate dev
+   npx prisma db seed
+   ```
+
+5. Create a Supabase storage bucket:
+   - Create a bucket named `captures`
+   - Set it to public
+
+6. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+7. Open http://localhost:3000
+
+## Tech Stack
+
+- **Frontend**: Next.js (App Router), React, Tailwind CSS
+- **Database**: PostgreSQL with Prisma
+- **Auth**: NextAuth.js
+- **Storage**: Supabase
+- **AI**: Anthropic Claude (Vision API)

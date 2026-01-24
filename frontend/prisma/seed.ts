@@ -1,0 +1,72 @@
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const animals = [
+  {
+    id: "dog",
+    commonName: "Dog",
+    scientificName: "Canis lupus familiaris",
+    class: "Mammalia",
+    order: "Carnivora",
+    family: "Canidae",
+    dietaryGroup: "Omnivore",
+    habitat: "Domestic environments, varied habitats alongside humans",
+    regions: ["Worldwide"],
+    blurb:
+      "The domestic dog is humanity's oldest companion, descended from wolves and domesticated over 15,000 years ago. They display remarkable diversity in size, shape, and behavior across hundreds of breeds. Dogs are known for their loyalty, trainability, and deep social bonds with humans.",
+    defaultImage: "/images/dog.jpg",
+  },
+  {
+    id: "cat",
+    commonName: "Cat",
+    scientificName: "Felis catus",
+    class: "Mammalia",
+    order: "Carnivora",
+    family: "Felidae",
+    dietaryGroup: "Carnivore",
+    habitat: "Domestic environments, urban and rural areas",
+    regions: ["Worldwide"],
+    blurb:
+      "The domestic cat is a small predator that has lived alongside humans for nearly 10,000 years. They retain strong hunting instincts and are crepuscular, most active at dawn and dusk. Cats are valued for their independence, agility, and affectionate yet self-reliant nature.",
+    defaultImage: "/images/cat.jpg",
+  },
+  {
+    id: "frog",
+    commonName: "Common Frog",
+    scientificName: "Rana temporaria",
+    class: "Amphibia",
+    order: "Anura",
+    family: "Ranidae",
+    dietaryGroup: "Carnivore",
+    habitat: "Ponds, marshes, woodlands, gardens",
+    regions: ["Europe", "Northern Asia"],
+    blurb:
+      "The common frog is a widespread amphibian found across Europe in moist habitats near water. They breathe through their skin and undergo metamorphosis from aquatic tadpoles to terrestrial adults. Frogs are important indicators of environmental health and play a key role in controlling insect populations.",
+    defaultImage: "/images/frog.jpg",
+  },
+];
+
+async function main() {
+  console.log("Seeding database...");
+
+  for (const animal of animals) {
+    await prisma.animal.upsert({
+      where: { id: animal.id },
+      update: animal,
+      create: animal,
+    });
+    console.log(`Seeded animal: ${animal.commonName}`);
+  }
+
+  console.log("Seeding complete!");
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
