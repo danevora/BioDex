@@ -42,4 +42,4 @@ export function getAnimalStats(): Record<string, number> {
   return stats;
 }
 
-export { AnimalData, AnimalFile } from "./types";
+export type { AnimalData, AnimalFile } from "./types";

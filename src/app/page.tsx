@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { DexGrid } from "@/components/DexGrid";
+import { DexFilters, CaptureStatus } from "@/components/DexFilters";
 import { AnimalDetail } from "@/components/AnimalDetail";
 import { CaptureButton, CaptureModal } from "@/components/capture";
 import { AuthButton } from "@/components/auth/AuthButton";
@@ -24,6 +25,29 @@ export default function Home() {
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
   const [newCaptureImageUrl, setNewCaptureImageUrl] = useState<string | null>(null);
   const [captureModalOpen, setCaptureModalOpen] = useState(false);
+  // null means "all classes selected" (initial state before user interaction)
+  const [selectedClasses, setSelectedClasses] = useState<Set<string> | null>(null);
+  const [captureStatus, setCaptureStatus] = useState<CaptureStatus>("all");
+
+  // Compute available classes from animals
+  const availableClasses = useMemo(() => {
+    const classes = new Set(animals.map((a) => a.class));
+    return Array.from(classes).sort();
+  }, [animals]);
+
+  // Compute counts per class
+  const classCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const animal of animals) {
+      counts.set(animal.class, (counts.get(animal.class) || 0) + 1);
+    }
+    return counts;
+  }, [animals]);
+
+  // Effective selected classes: null means all classes are selected
+  const effectiveSelectedClasses = useMemo(() => {
+    return selectedClasses ?? new Set(availableClasses);
+  }, [selectedClasses, availableClasses]);
 
   // Build capture map: animalId -> imageUrl
   const captureMap = useMemo(() => {
@@ -33,6 +57,35 @@ export default function Home() {
     }
     return map;
   }, [captures]);
+
+  // Filter animals based on selected classes and capture status
+  const filteredAnimals = useMemo(() => {
+    const filtered = animals.filter((animal) => {
+      // Class filter
+      if (!effectiveSelectedClasses.has(animal.class)) return false;
+
+      // Capture status filter (only for authenticated users)
+      if (isAuthenticated) {
+        const isCaptured = captureMap.has(animal.id);
+        if (captureStatus === "captured" && !isCaptured) return false;
+        if (captureStatus === "undiscovered" && isCaptured) return false;
+      }
+
+      return true;
+    });
+
+    // Sort captured animals first (only for authenticated users)
+    if (isAuthenticated) {
+      return filtered.sort((a, b) => {
+        const aCaptured = captureMap.has(a.id);
+        const bCaptured = captureMap.has(b.id);
+        if (aCaptured && !bCaptured) return -1;
+        if (!aCaptured && bCaptured) return 1;
+        return a.commonName.localeCompare(b.commonName);
+      });
+    }
+    return filtered;
+  }, [animals, effectiveSelectedClasses, captureStatus, captureMap, isAuthenticated]);
 
   const handleCapture = async (
     animalId: string,
@@ -92,11 +145,32 @@ export default function Home() {
             <div className="animate-pulse text-muted-foreground">Loading...</div>
           </div>
         ) : (
-          <DexGrid
-            animals={animals}
-            captureMap={captureMap}
-            onAnimalClick={setSelectedAnimal}
-          />
+          <>
+            {animals.length > 0 && (
+              <DexFilters
+                availableClasses={availableClasses}
+                selectedClasses={effectiveSelectedClasses}
+                onClassChange={setSelectedClasses}
+                classCounts={classCounts}
+                captureStatus={captureStatus}
+                onCaptureStatusChange={setCaptureStatus}
+                showCaptureFilter={isAuthenticated}
+              />
+            )}
+            {filteredAnimals.length > 0 ? (
+              <DexGrid
+                animals={filteredAnimals}
+                captureMap={captureMap}
+                onAnimalClick={setSelectedAnimal}
+              />
+            ) : (
+              <div className="flex justify-center py-12">
+                <p className="text-muted-foreground">
+                  No animals match your filters
+                </p>
+              </div>
+            )}
+          </>
         )}
       </main>
 
