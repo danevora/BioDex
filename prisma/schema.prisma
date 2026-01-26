@@ -16,14 +16,30 @@ model User {
   email         String    @unique
   name          String?
   image         String?
-  password      String?   // Hashed, nullable for OAuth users
+  password      String? // Hashed, nullable for OAuth users
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Profile fields
+  username    String? @unique
+  displayName String?
+  bio         String? @db.Text
+
+  // NextAuth relations
   accounts Account[]
   sessions Session[]
+
+  // BioDex relations
   captures Capture[]
+
+  // Social relations
+  posts            Post[]
+  likes            Like[]
+  comments         Comment[]
+  followers        Follow[]          @relation("UserFollowers")
+  following        Follow[]          @relation("UserFollowing")
+  userAchievements UserAchievement[]
 }
 
 model Account {
@@ -88,39 +104,103 @@ model Capture {
   userId     String
   animalId   String
   imageUrl   String
-  imagePath  String   // Storage path for deletion
+  imagePath  String // Storage path for deletion
   confidence Float?
   capturedAt DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  posts  Post[]
 
   @@unique([userId, animalId]) // One capture per animal per user
 }
 
-// Future extensibility - uncomment when needed:
-//
-// model Friendship {
-//   id        String   @id @default(cuid())
-//   userId    String
-//   friendId  String
-//   status    String   // pending, accepted, rejected
-//   createdAt DateTime @default(now())
-//
-//   user   User @relation("UserFriendships", fields: [userId], references: [id])
-//   friend User @relation("FriendFriendships", fields: [friendId], references: [id])
-//
-//   @@unique([userId, friendId])
-// }
-//
-// model FeedItem {
-//   id        String   @id @default(cuid())
-//   userId    String
-//   captureId String
-//   type      String   // capture, recapture
-//   createdAt DateTime @default(now())
-//
-//   user    User    @relation(fields: [userId], references: [id])
-//   capture Capture @relation(fields: [captureId], references: [id])
-// }
+// Social Models
+model Post {
+  id        String   @id @default(cuid())
+  userId    String
+  captureId String
+  caption   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  capture  Capture   @relation(fields: [captureId], references: [id], onDelete: Cascade)
+  likes    Like[]
+  comments Comment[]
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([createdAt(sort: Desc)])
+}
+
+// Achievement Models (for future use)
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @db.Text
+  category    String
+  tier        String?
+  iconUrl     String?
+  criteria    Json
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+  progress      Json?
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
