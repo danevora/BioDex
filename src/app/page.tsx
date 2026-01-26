@@ -113,7 +113,7 @@ export default function Home() {
   const isLoading = isAuthLoading || (isAuthenticated && isCapturesLoading);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <header className="border-b">
         <div className="container mx-auto px-4 py-6 flex justify-between items-start">
           <div>
