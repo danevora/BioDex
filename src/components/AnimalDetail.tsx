@@ -40,7 +40,7 @@ export function AnimalDetail({ animal, userImage, onClose }: AnimalDetailProps) 
           />
           <div className="absolute top-3 right-3 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
             <Check className="h-4 w-4" />
-            Your Capture
+            Your Discovery
           </div>
         </div>
         <CardHeader>

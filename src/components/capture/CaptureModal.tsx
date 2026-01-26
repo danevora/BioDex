@@ -113,7 +113,7 @@ export function CaptureModal({
         {step === "upload" && (
           <>
             <DialogHeader>
-              <DialogTitle>Capture a Creature</DialogTitle>
+              <DialogTitle>Discover a Creature</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <ImageUploader
@@ -140,7 +140,7 @@ export function CaptureModal({
         {step === "saving" && (
           <div className="py-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-4" />
-            <p className="text-muted-foreground">Saving your capture...</p>
+            <p className="text-muted-foreground">Saving your discovery...</p>
           </div>
         )}
 

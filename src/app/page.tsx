@@ -120,7 +120,7 @@ export default function Home() {
             <h1 className="text-3xl font-bold">BioDex</h1>
             {isAuthenticated && stats ? (
               <p className="text-muted-foreground">
-                {stats.captureCount} of {stats.totalAnimals} species captured
+                {stats.captureCount} of {stats.totalAnimals} species discovered
               </p>
             ) : (
               <p className="text-muted-foreground">
@@ -136,7 +136,7 @@ export default function Home() {
         {!isAuthLoading && !isAuthenticated && (
           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center">
             <p className="text-emerald-800">
-              Sign in to start capturing animals and build your collection!
+              Sign in to start discovering animals and build your collection!
             </p>
           </div>
         )}
