@@ -7,7 +7,7 @@ import { DexGrid } from "@/components/DexGrid";
 import { DexFilters, CaptureStatus } from "@/components/DexFilters";
 import { AnimalDetail } from "@/components/AnimalDetail";
 import { CaptureButton, CaptureModal } from "@/components/capture";
-import { ExplorerBadge } from "@/components/profile";
+import { ExplorerBadge, ProfileEditModal } from "@/components/profile";
 import { useAnimals } from "@/hooks/useAnimals";
 import { useCaptures, useCreateCapture } from "@/hooks/useCaptures";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -199,29 +199,12 @@ export default function ProfilePage() {
         />
       )}
 
-      {/* Edit Profile Modal - Placeholder for US-011 */}
-      {editModalOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-          onClick={() => setEditModalOpen(false)}
-        >
-          <div
-            className="bg-card p-6 rounded-lg max-w-md w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold mb-4">Edit Profile</h3>
-            <p className="text-muted-foreground mb-4">
-              Profile editing will be available soon.
-            </p>
-            <button
-              onClick={() => setEditModalOpen(false)}
-              className="w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Edit Profile Modal */}
+      <ProfileEditModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        profile={profile}
+      />
     </div>
   );
 }
