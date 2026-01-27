@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ImageUploader } from "./ImageUploader";
 import { ScanningAnimation } from "./ScanningAnimation";
 import { RevealAnimation, NoMatchResult } from "./RevealAnimation";
-import { identifyAnimal, type IdentifyResult } from "@/lib/api";
+import { identifyAnimal, submitAnimal, type IdentifyResult } from "@/lib/api";
 import { useCreatePost } from "@/hooks/useFeed";
 import type { Animal } from "@/types/animal";
 import type { Capture } from "@/types/animal";
@@ -42,6 +42,9 @@ export function CaptureModal({
   const [result, setResult] = useState<IdentifyResult | null>(null);
   const [matchedAnimal, setMatchedAnimal] = useState<Animal | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submittedCapture, setSubmittedCapture] = useState<{ id: string; animalId: string; imageUrl: string } | null>(null);
 
   const createPost = useCreatePost();
 
@@ -55,6 +58,9 @@ export function CaptureModal({
     setResult(null);
     setMatchedAnimal(null);
     setError(null);
+    setIsSubmitting(false);
+    setSubmitError(null);
+    setSubmittedCapture(null);
   }, [imagePreviewUrl]);
 
   const handleOpenChange = (open: boolean) => {
@@ -96,8 +102,71 @@ export function CaptureModal({
     setStep("result");
   };
 
+  const handleSubmitAnimal = async (speciesName: string) => {
+    if (!selectedImage || !result || !result.success || result.matched) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const taxonomicClass = result.taxonomic_class;
+    const response = await submitAnimal(speciesName, selectedImage, taxonomicClass);
+
+    if (response.success && response.animal && response.capture) {
+      setSubmittedCapture(response.capture);
+      setMatchedAnimal({
+        id: response.animal.id,
+        commonName: response.animal.commonName,
+        scientificName: response.animal.scientificName,
+        class: response.animal.class,
+        order: response.animal.order,
+        family: response.animal.family,
+        dietaryGroup: response.animal.dietaryGroup,
+        habitat: response.animal.habitat,
+        regions: response.animal.regions,
+        blurb: response.animal.blurb,
+        hint: response.animal.hint,
+      });
+      // Switch result to matched state to trigger RevealAnimation
+      setResult({
+        success: true,
+        matched: true,
+        animal_id: response.animal.id,
+        confidence: 1.0,
+      });
+    } else {
+      setSubmitError(response.error || "Failed to add animal");
+    }
+
+    setIsSubmitting(false);
+  };
+
   const handleCapture = async (shareOptions?: ShareOptions) => {
     if (!result?.success || !result.matched || !selectedImage) return;
+
+    // If capture was already created server-side via submit, skip onCapture
+    if (submittedCapture) {
+      setStep("saving");
+      setError(null);
+      try {
+        // Create post if sharing to feed
+        if (shareOptions?.shareToFeed && submittedCapture.id) {
+          try {
+            await createPost.mutateAsync({
+              captureId: submittedCapture.id,
+              caption: shareOptions.caption || undefined,
+            });
+          } catch {
+            console.error("Failed to share to feed, but capture was saved");
+          }
+        }
+        handleOpenChange(false);
+        return;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to save");
+        setStep("result");
+        return;
+      }
+    }
 
     setStep("saving");
     setError(null);
@@ -188,11 +257,17 @@ export function CaptureModal({
               <NoMatchResult
                 detectedAnimal={result.detected_animal}
                 onTryAgain={handleTryAgain}
+                onSubmitAnimal={handleSubmitAnimal}
+                isSubmitting={isSubmitting}
+                submitError={submitError}
               />
             ) : (
               <NoMatchResult
                 detectedAnimal={null}
                 onTryAgain={handleTryAgain}
+                onSubmitAnimal={handleSubmitAnimal}
+                isSubmitting={isSubmitting}
+                submitError={submitError}
               />
             )}
           </>

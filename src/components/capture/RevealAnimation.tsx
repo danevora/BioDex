@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import type { Animal } from "@/types/animal";
 
 const MAX_CAPTION_LENGTH = 280;
@@ -202,12 +203,27 @@ function ShareToFeedSection({ onClose }: ShareToFeedSectionProps) {
 interface NoMatchResultProps {
   detectedAnimal: string | null;
   onTryAgain: () => void;
+  onSubmitAnimal?: (speciesName: string) => void;
+  isSubmitting?: boolean;
+  submitError?: string | null;
 }
 
 export function NoMatchResult({
   detectedAnimal,
   onTryAgain,
+  onSubmitAnimal,
+  isSubmitting,
+  submitError,
 }: NoMatchResultProps) {
+  const [speciesName, setSpeciesName] = useState(detectedAnimal || "");
+
+  const handleSubmit = () => {
+    const trimmed = speciesName.trim();
+    if (trimmed && onSubmitAnimal) {
+      onSubmitAnimal(trimmed);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -221,18 +237,41 @@ export function NoMatchResult({
       <h3 className="text-xl font-semibold mb-2">Not in BioDex</h3>
 
       {detectedAnimal ? (
-        <p className="text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-4">
           We detected a <span className="font-medium">{detectedAnimal}</span>,
-          but it&apos;s not in your BioDex catalog yet.
+          but it&apos;s not in the BioDex catalog yet.
         </p>
       ) : (
-        <p className="text-muted-foreground mb-6">
-          We couldn&apos;t identify an animal in this image. Try a clearer photo
-          of a dog, cat, or frog.
+        <p className="text-muted-foreground mb-4">
+          We couldn&apos;t identify an animal in this image.
         </p>
       )}
 
-      <Button onClick={onTryAgain} variant="outline">
+      {onSubmitAnimal && (
+        <div className="w-full max-w-xs space-y-3 mb-4">
+          <Input
+            value={speciesName}
+            onChange={(e) => setSpeciesName(e.target.value)}
+            placeholder="Enter species name..."
+            disabled={isSubmitting}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSubmit();
+            }}
+          />
+          {submitError && (
+            <p className="text-sm text-red-600">{submitError}</p>
+          )}
+          <Button
+            onClick={handleSubmit}
+            disabled={!speciesName.trim() || isSubmitting}
+            className="w-full"
+          >
+            {isSubmitting ? "Adding..." : "Add to BioDex"}
+          </Button>
+        </div>
+      )}
+
+      <Button onClick={onTryAgain} variant="outline" disabled={isSubmitting}>
         Try Another Photo
       </Button>
     </motion.div>

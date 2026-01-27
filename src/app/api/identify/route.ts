@@ -31,8 +31,18 @@ const TAXONOMIC_CLASSES = [
 
 type ImageMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
+function toPascalCase(str: string): string {
+  return str
+    .trim()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 interface ClassificationResult {
   is_animal: boolean;
+  is_human?: boolean;
+  is_inappropriate?: boolean;
   taxonomic_class: string | null;
   confidence: number;
 }
@@ -71,6 +81,8 @@ async function classifyAnimal(
 Respond with a JSON object:
 {
   "is_animal": true/false,
+  "is_human": true/false,
+  "is_inappropriate": true/false,
   "taxonomic_class": "class name or null",
   "confidence": 0.0-1.0
 }
@@ -88,8 +100,10 @@ Valid taxonomic classes:
 - Cephalopoda (octopus, squid)
 
 Rules:
+- If the image contains a human or person (with or without animals), set is_human to true and is_animal to false
+- If the image shows a dead, injured, or distressed animal, set is_inappropriate to true and is_animal to false
 - If no animal is visible, set is_animal to false
-- If you see an animal, identify the taxonomic class
+- If you see a live, healthy animal, identify the taxonomic class
 - Confidence reflects how certain you are about the class
 
 Respond ONLY with the JSON object.`;
@@ -136,7 +150,7 @@ async function matchAnimal(
     .map((a) => `- ${a.commonName} (${a.scientificName}) [id: ${a.id}]`)
     .join("\n");
 
-  const matchPrompt = `Identify the specific animal in this image from our catalog.
+  const matchPrompt = `Identify the specific animal species in this image from our catalog.
 
 BioDex catalog:
 ${catalogDescription}
@@ -144,7 +158,7 @@ ${catalogDescription}
 Respond with a JSON object:
 {
   "matched_id": "catalog id if matched, or null",
-  "detected_animal": "what animal you see",
+  "detected_animal": "Specific Species Name In Pascal Case",
   "confidence": 0.0-1.0
 }
 
@@ -153,6 +167,14 @@ Rules:
 - For domestic animals: any breed of dog matches "dog", any cat matches "cat"
 - If the animal isn't in our catalog, set matched_id to null
 - Confidence should reflect how certain you are of the specific match
+- IMPORTANT: Always identify the most specific species possible, not just the general animal type. Examples:
+  - "Sumatran Tiger" not "Tiger"
+  - "Mallard Duck" not "Duck"
+  - "Monarch Butterfly" not "Butterfly"
+  - "Green Tree Frog" not "Frog"
+  - "Atlantic Puffin" not "Puffin"
+  - "Red-Tailed Hawk" not "Hawk"
+- The detected_animal name MUST be in Pascal Case (capitalize the first letter of each word), e.g. "Bald Eagle", "Red Fox", "Blue Morpho Butterfly"
 
 Respond ONLY with the JSON object.`;
 
@@ -248,6 +270,22 @@ export async function POST(request: NextRequest) {
     const classification = await classifyAnimal(client, base64Image, mediaType);
     console.log("Classification result:", classification);
 
+    // Safeguard: reject images of humans
+    if (classification.is_human) {
+      return NextResponse.json({
+        success: false,
+        error: "BioDex is for discovering animals, not people. Please upload a photo of an animal.",
+      }, { status: 400 });
+    }
+
+    // Safeguard: reject inappropriate images (dead/injured animals)
+    if (classification.is_inappropriate) {
+      return NextResponse.json({
+        success: false,
+        error: "This image appears to show a dead or injured animal. Please upload a photo of a healthy, living animal.",
+      }, { status: 400 });
+    }
+
     // If no animal detected
     if (!classification.is_animal) {
       return NextResponse.json({
@@ -296,7 +334,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
           success: true,
           matched: false,
-          detected_animal: matchResult.detected_animal,
+          detected_animal: matchResult.detected_animal ? toPascalCase(matchResult.detected_animal) : null,
+          taxonomic_class: classification.taxonomic_class,
           message: "Please take a clearer photo for better identification",
         });
       }
@@ -305,7 +344,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         matched: false,
-        detected_animal: matchResult.detected_animal,
+        detected_animal: toPascalCase(matchResult.detected_animal),
+        taxonomic_class: classification.taxonomic_class,
       });
     } else {
       // Could not identify
