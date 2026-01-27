@@ -11,6 +11,7 @@ export interface UserProfile {
   followerCount: number;
   followingCount: number;
   discoveryCount: number;
+  hasOnboarded: boolean;
 }
 
 async function fetchUserProfile(): Promise<UserProfile> {
@@ -76,6 +77,25 @@ export function usePublicProfile(userId: string | undefined) {
     queryKey: ["profile", userId],
     queryFn: () => fetchPublicProfile(userId!),
     enabled: !!userId,
+  });
+}
+
+async function completeOnboarding(): Promise<{ success: boolean }> {
+  const response = await fetch("/api/user/onboarding", { method: "POST" });
+  if (!response.ok) {
+    throw new Error("Failed to complete onboarding");
+  }
+  return response.json();
+}
+
+export function useCompleteOnboarding() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: completeOnboarding,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
+    },
   });
 }
 

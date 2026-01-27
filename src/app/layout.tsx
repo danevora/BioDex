@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { BottomNav } from "@/components/navigation";
+import { OnboardingProvider } from "@/components/providers/OnboardingProvider";
+import { OnboardingOverlay } from "@/components/onboarding/OnboardingOverlay";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,8 +34,11 @@ export default function RootLayout({
       >
         <SessionProvider>
           <QueryProvider>
-            {children}
-            <BottomNav />
+            <OnboardingProvider>
+              {children}
+              <BottomNav />
+              <OnboardingOverlay />
+            </OnboardingProvider>
           </QueryProvider>
         </SessionProvider>
       </body>

@@ -22,6 +22,7 @@ export async function GET() {
         email: true,
         bio: true,
         image: true,
+        hasOnboarded: true,
         createdAt: true,
         _count: {
           select: {
@@ -43,6 +44,7 @@ export async function GET() {
       email: user.email,
       bio: user.bio,
       image: user.image,
+      hasOnboarded: user.hasOnboarded,
       createdAt: user.createdAt,
       followerCount: user._count.followers,
       followingCount: user._count.following,

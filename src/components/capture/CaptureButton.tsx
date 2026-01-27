@@ -12,6 +12,7 @@ export function CaptureButton({ onClick }: CaptureButtonProps) {
     <Button
       onClick={onClick}
       size="icon-lg"
+      data-onboarding="capture-button"
       className="fixed bottom-20 right-6 z-40 size-14 rounded-full shadow-lg hover:shadow-xl transition-shadow md:bottom-6"
     >
       <Camera className="size-6" />

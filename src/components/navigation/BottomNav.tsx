@@ -38,6 +38,7 @@ function MobileNav({ pathname }: { pathname: string }) {
             <Link
               key={item.href}
               href={item.href}
+              data-onboarding={`nav-${item.label.toLowerCase()}`}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 py-3 px-6 min-h-[56px] min-w-[80px] transition-colors",
                 isActive
@@ -84,6 +85,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-onboarding={`nav-${item.label.toLowerCase()}`}
                   className={cn(
                     "flex items-center gap-2 py-2 px-4 rounded-md transition-colors",
                     isActive

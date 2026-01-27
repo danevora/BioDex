@@ -26,6 +26,7 @@ model User {
   username    String  @unique
   displayName String?
   bio         String? @db.Text
+  hasOnboarded Boolean @default(false)
 
   // NextAuth relations
   accounts Account[]
