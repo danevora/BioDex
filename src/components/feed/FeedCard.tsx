@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle } from "lucide-react";
@@ -8,10 +9,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Post } from "@/hooks/useUserProfile";
 import { LikeButton } from "./LikeButton";
+import { CommentSection } from "./CommentSection";
+import { cn } from "@/lib/utils";
 
 interface FeedCardProps {
   post: Post;
-  onCommentClick?: (postId: string) => void;
 }
 
 function getInitials(name: string | null): string {
@@ -48,7 +50,10 @@ function formatRelativeTime(dateString: string): string {
   }
 }
 
-export function FeedCard({ post, onCommentClick }: FeedCardProps) {
+export function FeedCard({ post }: FeedCardProps) {
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [commentCount, setCommentCount] = useState(post.commentCount);
+
   const displayName = post.user.displayName || post.user.username || "Explorer";
   const initials = getInitials(post.user.displayName || post.user.username);
 
@@ -124,16 +129,36 @@ export function FeedCard({ post, onCommentClick }: FeedCardProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onCommentClick?.(post.id)}
-            className="flex items-center gap-1.5 px-2 h-8"
+            onClick={() => setIsCommentsOpen(!isCommentsOpen)}
+            className={cn(
+              "flex items-center gap-1.5 px-2 h-8",
+              isCommentsOpen && "bg-muted"
+            )}
           >
-            <MessageCircle className="h-5 w-5 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {post.commentCount}
+            <MessageCircle
+              className={cn(
+                "h-5 w-5",
+                isCommentsOpen ? "text-emerald-600" : "text-muted-foreground"
+              )}
+            />
+            <span
+              className={cn(
+                "text-sm",
+                isCommentsOpen ? "text-emerald-600" : "text-muted-foreground"
+              )}
+            >
+              {commentCount}
             </span>
           </Button>
         </div>
       </CardContent>
+
+      {/* Comment Section */}
+      <CommentSection
+        postId={post.id}
+        isOpen={isCommentsOpen}
+        onCommentCountChange={setCommentCount}
+      />
     </Card>
   );
 }
