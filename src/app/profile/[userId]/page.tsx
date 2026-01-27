@@ -140,7 +140,7 @@ export default function PublicProfilePage() {
 
   if (isLoading || isOwnProfile) {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -152,7 +152,7 @@ export default function PublicProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
         <div className="container mx-auto px-4 py-6">
           <div className="text-muted-foreground">Failed to load profile</div>
         </div>
@@ -161,7 +161,7 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Explorer Badge with Follow Button */}
         <div className="space-y-4">
