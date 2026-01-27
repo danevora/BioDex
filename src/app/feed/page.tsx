@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { Loader2, Users } from "lucide-react";
 import { useFeed } from "@/hooks/useFeed";
-import { FeedCard } from "@/components/feed";
+import { FeedCard, ExplorerSearch } from "@/components/feed";
 
 export default function FeedPage() {
   const { data: session, status } = useSession();
@@ -70,7 +70,10 @@ export default function FeedPage() {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <header className="border-b sticky top-0 bg-background z-10">
         <div className="container mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold">Feed</h1>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-xl font-bold">Feed</h1>
+            <ExplorerSearch />
+          </div>
         </div>
       </header>
 
