@@ -99,6 +99,7 @@ export default function ProfilePage() {
       setNewCaptureImageUrl(capture.imageUrl);
       setSelectedAnimal(animal);
     }
+    return capture;
   };
 
   const handleCloseDetail = () => {

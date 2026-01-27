@@ -82,3 +82,34 @@ export function useUnlikePost() {
     },
   });
 }
+
+interface CreatePostParams {
+  captureId: string;
+  caption?: string;
+}
+
+async function createPost(params: CreatePostParams): Promise<Post> {
+  const response = await fetch("/api/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to create post");
+  }
+  return response.json();
+}
+
+export function useCreatePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+}
