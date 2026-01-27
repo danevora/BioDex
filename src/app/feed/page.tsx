@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { Loader2, Users } from "lucide-react";
 import { useFeed } from "@/hooks/useFeed";
 import { FeedCard, ExplorerSearch } from "@/components/feed";
+import { MobileMenuButton } from "@/components/navigation/BottomNav";
 
 export default function FeedPage() {
   const { data: session, status } = useSession();
@@ -72,7 +73,10 @@ export default function FeedPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <h1 className="text-xl font-bold">Feed</h1>
-            <ExplorerSearch />
+            <div className="flex items-center gap-2">
+              <ExplorerSearch />
+              <MobileMenuButton />
+            </div>
           </div>
         </div>
       </header>

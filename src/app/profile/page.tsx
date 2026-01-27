@@ -8,6 +8,8 @@ import { DexFilters, CaptureStatus } from "@/components/DexFilters";
 import { AnimalDetail } from "@/components/AnimalDetail";
 import { CaptureButton, CaptureModal } from "@/components/capture";
 import { ExplorerBadge, ProfileEditModal } from "@/components/profile";
+import { MobileMenuButton } from "@/components/navigation/BottomNav";
+import { ExplorerSearch } from "@/components/feed";
 import { useAnimals } from "@/hooks/useAnimals";
 import { useCaptures, useCreateCapture } from "@/hooks/useCaptures";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -140,6 +142,18 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
+      <header className="border-b sticky top-0 bg-background z-10 md:hidden">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-xl font-bold">Your BioDex</h1>
+            <div className="flex items-center gap-2">
+              <ExplorerSearch />
+              <MobileMenuButton />
+            </div>
+          </div>
+        </div>
+      </header>
+
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Explorer Badge */}
         <ExplorerBadge
@@ -150,7 +164,6 @@ export default function ProfilePage() {
 
         {/* BioDex Section */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">Your BioDex</h2>
 
           {/* Filters */}
           {animals.length > 0 && (
