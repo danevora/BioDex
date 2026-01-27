@@ -42,8 +42,7 @@ export function LandingPage() {
               </div>
               <h3 className="text-lg font-semibold mb-2">Snap & Discover</h3>
               <p className="text-gray-600">
-                Take a photo of any animal you encounter. Our AI instantly
-                identifies the species and adds it to your BioDex.
+                Snap a photo of any animal you encounter and we'll identify the species for you.
               </p>
             </div>
 
