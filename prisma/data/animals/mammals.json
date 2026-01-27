@@ -534,6 +534,19 @@
       "regions": ["Worldwide"],
       "blurb": "The domestic cat is a small predator that has lived alongside humans for nearly 10,000 years. They retain strong hunting instincts and are crepuscular, most active at dawn and dusk.",
       "hint": "An independent feline companion found worldwide"
+    },
+    {
+      "id": "cow",
+      "commonName": "Cow",
+      "scientificName": "Bos taurus",
+      "class": "Mammalia",
+      "order": "Artiodactyla",
+      "family": "Bovidae",
+      "dietaryGroup": "Herbivore",
+      "habitat": "Pastures, grasslands, farmland, rural areas",
+      "regions": ["Worldwide"],
+      "blurb": "Domesticated over 10,000 years ago from wild aurochs, cattle are among the most widespread large mammals on Earth. They are ruminants with a four-chambered stomach, allowing them to digest tough grasses. Cows are social animals that form strong bonds within their herds.",
+      "hint": "A large, gentle grazer commonly found on farms and pastures"
     }
   ]
 }
