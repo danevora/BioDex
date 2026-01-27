@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { signOut } from "next-auth/react";
-import { Camera, Loader2, LogOut } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -282,18 +281,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
         </Button>
       </DialogFooter>
 
-      {/* Log Out */}
-      <div className="border-t pt-4">
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full text-muted-foreground hover:text-destructive"
-          onClick={() => signOut({ callbackUrl: "/" })}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Log Out
-        </Button>
-      </div>
     </form>
   );
 }
