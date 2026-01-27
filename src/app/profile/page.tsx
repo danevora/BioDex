@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { DexGrid } from "@/components/DexGrid";
 import { DexFilters, CaptureStatus } from "@/components/DexFilters";
@@ -12,6 +12,8 @@ import { useAnimals } from "@/hooks/useAnimals";
 import { useCaptures, useCreateCapture } from "@/hooks/useCaptures";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Animal } from "@/types/animal";
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -120,7 +122,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
         <div className="container mx-auto px-4 py-6">
           <div className="animate-pulse text-muted-foreground">Loading...</div>
         </div>
@@ -130,7 +132,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
         <div className="container mx-auto px-4 py-6">
           <div className="text-muted-foreground">Failed to load profile</div>
         </div>
@@ -139,7 +141,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Explorer Badge */}
         <ExplorerBadge
@@ -180,6 +182,16 @@ export default function ProfilePage() {
             </div>
           )}
         </section>
+
+        {/* Log Out */}
+        <Button
+          variant="ghost"
+          className="w-full text-muted-foreground hover:text-destructive"
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Log Out
+        </Button>
       </main>
 
       {/* Capture Button & Modal */}

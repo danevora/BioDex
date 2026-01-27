@@ -50,7 +50,7 @@ export default function FeedPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -67,8 +67,8 @@ export default function FeedPage() {
   const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <header className="border-b sticky top-0 bg-background z-10">
+    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pt-16">
+      <header className="border-b sticky top-0 bg-background z-10 md:hidden">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <h1 className="text-xl font-bold">Feed</h1>
