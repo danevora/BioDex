@@ -20,12 +20,10 @@ interface ProfileEditModalProps {
 }
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
-const MAX_DISPLAY_NAME_LENGTH = 50;
 const MAX_BIO_LENGTH = 160;
 
 interface FormErrors {
   username?: string;
-  displayName?: string;
   bio?: string;
 }
 
@@ -39,7 +37,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
   const updateProfile = useUpdateProfile();
 
   const [username, setUsername] = useState(profile.username || "");
-  const [displayName, setDisplayName] = useState(profile.displayName || "");
   const [bio, setBio] = useState(profile.bio || "");
   const [errors, setErrors] = useState<FormErrors>({});
   const [apiError, setApiError] = useState<string | null>(null);
@@ -53,11 +50,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
         newErrors.username =
           "Username must be 3-20 characters, alphanumeric and underscores only";
       }
-    }
-
-    // Display name validation
-    if (displayName.length > MAX_DISPLAY_NAME_LENGTH) {
-      newErrors.displayName = `Display name must be ${MAX_DISPLAY_NAME_LENGTH} characters or less`;
     }
 
     // Bio validation
@@ -80,7 +72,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
     try {
       await updateProfile.mutateAsync({
         username: username.trim() || undefined,
-        displayName: displayName.trim() || undefined,
         bio: bio.trim() || undefined,
       });
 
@@ -145,38 +136,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
         )}
       </div>
 
-      {/* Display Name */}
-      <div>
-        <label
-          htmlFor="displayName"
-          className="block text-sm font-medium text-foreground mb-1"
-        >
-          Display Name
-        </label>
-        <input
-          id="displayName"
-          type="text"
-          value={displayName}
-          onChange={(e) => {
-            setDisplayName(e.target.value);
-            if (errors.displayName) {
-              setErrors((prev) => ({ ...prev, displayName: undefined }));
-            }
-          }}
-          disabled={isLoading}
-          maxLength={MAX_DISPLAY_NAME_LENGTH}
-          className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50"
-          placeholder="Your display name"
-        />
-        {errors.displayName ? (
-          <p className="mt-1 text-xs text-red-600">{errors.displayName}</p>
-        ) : (
-          <p className="mt-1 text-xs text-muted-foreground text-right">
-            {displayName.length}/{MAX_DISPLAY_NAME_LENGTH}
-          </p>
-        )}
-      </div>
-
       {/* Bio */}
       <div>
         <label
@@ -209,7 +168,7 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
         )}
       </div>
 
-      <DialogFooter className="gap-2 sm:gap-0">
+      <DialogFooter className="flex flex-row justify-end gap-3 pt-2">
         <Button
           type="button"
           variant="outline"

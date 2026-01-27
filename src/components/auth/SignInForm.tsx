@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export function SignInForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,13 +19,13 @@ export function SignInForm() {
 
     try {
       const result = await signIn("credentials", {
-        email,
+        username,
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        setError("Invalid username or password");
       } else {
         router.push("/");
         router.refresh();
@@ -47,20 +47,25 @@ export function SignInForm() {
 
       <div>
         <label
-          htmlFor="email"
+          htmlFor="username"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          Email
+          Username
         </label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          placeholder="you@example.com"
-        />
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            @
+          </span>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            placeholder="username"
+          />
+        </div>
       </div>
 
       <div>

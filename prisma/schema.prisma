@@ -17,13 +17,13 @@ model User {
   email         String    @unique
   name          String?
   image         String?
-  password      String? // Hashed, nullable for OAuth users
+  password      String  // Hashed
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   // Profile fields
-  username    String? @unique
+  username    String  @unique
   displayName String?
   bio         String? @db.Text
 

@@ -2,13 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
 
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
+
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const { username, email, password } = await request.json();
 
-    if (!email || !password) {
+    if (!username || !email || !password) {
       return NextResponse.json(
-        { error: "Email and password are required" },
+        { error: "Username, email, and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!USERNAME_REGEX.test(username)) {
+      return NextResponse.json(
+        { error: "Username must be 3-20 characters, alphanumeric and underscores only" },
         { status: 400 }
       );
     }
@@ -20,11 +29,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (existingUsername) {
+      return NextResponse.json(
+        { error: "This username is already taken" },
+        { status: 400 }
+      );
+    }
+
+    const existingEmail = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (existingUser) {
+    if (existingEmail) {
       return NextResponse.json(
         { error: "An account with this email already exists" },
         { status: 400 }
@@ -35,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.create({
       data: {
-        name,
+        username,
         email,
         password: hashedPassword,
       },
@@ -45,8 +65,7 @@ export async function POST(request: NextRequest) {
       success: true,
       user: {
         id: user.id,
-        name: user.name,
-        email: user.email,
+        username: user.username,
       },
     });
   } catch (error) {
