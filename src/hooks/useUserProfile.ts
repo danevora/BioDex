@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
 export interface UserProfile {
@@ -85,5 +85,68 @@ export function useUpdateProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
     },
+  });
+}
+
+// Post types for user posts
+export interface PostUser {
+  id: string;
+  username: string | null;
+  displayName: string | null;
+  image: string | null;
+}
+
+export interface PostAnimal {
+  id: string;
+  commonName: string;
+  scientificName: string;
+}
+
+export interface PostCapture {
+  id: string;
+  imageUrl: string;
+  capturedAt: string;
+}
+
+export interface Post {
+  id: string;
+  caption: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: PostUser;
+  capture: PostCapture;
+  animal: PostAnimal;
+  likeCount: number;
+  commentCount: number;
+  isLikedByMe: boolean;
+}
+
+interface UserPostsResponse {
+  posts: Post[];
+  nextCursor: string | null;
+}
+
+async function fetchUserPosts(userId: string, cursor?: string): Promise<UserPostsResponse> {
+  const url = new URL(`/api/users/${userId}/posts`, window.location.origin);
+  if (cursor) {
+    url.searchParams.set("cursor", cursor);
+  }
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("User not found");
+    }
+    throw new Error("Failed to fetch user posts");
+  }
+  return response.json();
+}
+
+export function useUserPosts(userId: string | undefined) {
+  return useInfiniteQuery({
+    queryKey: ["posts", userId],
+    queryFn: ({ pageParam }) => fetchUserPosts(userId!, pageParam as string | undefined),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    enabled: !!userId,
   });
 }
