@@ -14,19 +14,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       name: "credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        login: { label: "Username or Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
+        if (!credentials?.login || !credentials?.password) {
           return null;
         }
 
-        const username = credentials.username as string;
+        const login = credentials.login as string;
         const password = credentials.password as string;
 
+        // Check if login is an email (contains @) or username
+        const isEmail = login.includes("@");
+
         const user = await prisma.user.findUnique({
-          where: { username },
+          where: isEmail ? { email: login } : { username: login },
         });
 
         if (!user || !user.password) {

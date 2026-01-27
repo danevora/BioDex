@@ -34,8 +34,8 @@ export function ExplorerBadge({
   onEditClick,
   showEditButton = false,
 }: ExplorerBadgeProps) {
-  const displayName = profile.displayName || profile.username || "Explorer";
-  const initials = getInitials(profile.displayName || profile.username);
+  const displayName = profile.username || "Explorer";
+  const initials = getInitials(profile.username);
 
   return (
     <Card className="w-full">
@@ -52,7 +52,7 @@ export function ExplorerBadge({
           {/* Profile Info */}
           <div className="flex-1 text-center sm:text-left">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-              <h2 className="text-xl sm:text-2xl font-bold">{displayName}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">@{displayName}</h2>
               {showEditButton && onEditClick && (
                 <Button
                   variant="outline"
@@ -64,10 +64,6 @@ export function ExplorerBadge({
                 </Button>
               )}
             </div>
-
-            {profile.username && (
-              <p className="text-muted-foreground">@{profile.username}</p>
-            )}
 
             {profile.bio && (
               <p className="mt-2 text-sm text-foreground">{profile.bio}</p>

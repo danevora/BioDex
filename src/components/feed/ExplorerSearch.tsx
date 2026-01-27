@@ -13,14 +13,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDebouncedSearch, SearchUser } from "@/hooks/useSearchUsers";
 import { FollowButton } from "@/components/profile";
 
-function getInitials(displayName: string | null, username: string | null): string {
-  const name = displayName || username || "";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "?";
+function getInitials(username: string | null): string {
+  if (!username) return "?";
+  return username.substring(0, 2).toUpperCase();
 }
 
 interface SearchResultItemProps {
@@ -43,20 +38,15 @@ function SearchResultItem({ user, onNavigate }: SearchResultItemProps) {
         className="flex items-center gap-3 flex-1 text-left min-w-0"
       >
         <Avatar className="h-10 w-10 flex-shrink-0">
-          <AvatarImage src={user.image || undefined} alt={user.displayName || user.username || "User"} />
+          <AvatarImage src={user.image || undefined} alt={user.username || "User"} />
           <AvatarFallback className="text-xs">
-            {getInitials(user.displayName, user.username)}
+            {getInitials(user.username)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="font-medium text-sm truncate">
-            {user.displayName || user.username || "Explorer"}
+            @{user.username || "Explorer"}
           </p>
-          {user.username && (
-            <p className="text-xs text-muted-foreground truncate">
-              @{user.username}
-            </p>
-          )}
         </div>
       </button>
       <div className="flex-shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>

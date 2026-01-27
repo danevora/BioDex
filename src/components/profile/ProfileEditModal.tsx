@@ -136,6 +136,26 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
         )}
       </div>
 
+      {/* Email (read-only) */}
+      <div>
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-foreground mb-1"
+        >
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          value={profile.email || ""}
+          disabled
+          className="w-full px-3 py-2 border border-input rounded-md bg-muted text-muted-foreground cursor-not-allowed"
+        />
+        <p className="mt-1 text-xs text-muted-foreground">
+          Email cannot be changed
+        </p>
+      </div>
+
       {/* Bio */}
       <div>
         <label

@@ -28,7 +28,6 @@ export async function GET(request: Request) {
       select: {
         id: true,
         username: true,
-        displayName: true,
         image: true,
         _count: {
           select: {
@@ -61,7 +60,6 @@ export async function GET(request: Request) {
     const results = users.map((user) => ({
       id: user.id,
       username: user.username,
-      displayName: user.displayName,
       image: user.image,
       followerCount: user._count.followers,
       discoveryCount: user._count.captures,

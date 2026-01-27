@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 export interface SearchUser {
   id: string;
   username: string | null;
-  displayName: string | null;
   image: string | null;
   followerCount: number;
   discoveryCount: number;

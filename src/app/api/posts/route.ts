@@ -15,7 +15,6 @@ function formatPostResponse(
     user: {
       id: string;
       username: string | null;
-      displayName: string | null;
       image: string | null;
     };
     capture: {
@@ -44,7 +43,6 @@ function formatPostResponse(
     user: {
       id: post.user.id,
       username: post.user.username,
-      displayName: post.user.displayName,
       image: post.user.image,
     },
     capture: {
@@ -102,7 +100,6 @@ export async function GET(request: Request) {
           select: {
             id: true,
             username: true,
-            displayName: true,
             image: true,
           },
         },
@@ -218,7 +215,6 @@ export async function POST(request: Request) {
           select: {
             id: true,
             username: true,
-            displayName: true,
             image: true,
           },
         },

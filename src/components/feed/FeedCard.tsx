@@ -54,8 +54,8 @@ export function FeedCard({ post }: FeedCardProps) {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [commentCount, setCommentCount] = useState(post.commentCount);
 
-  const displayName = post.user.displayName || post.user.username || "Explorer";
-  const initials = getInitials(post.user.displayName || post.user.username);
+  const displayName = post.user.username || "Explorer";
+  const initials = getInitials(post.user.username);
 
   return (
     <Card className="w-full overflow-hidden">
@@ -75,12 +75,7 @@ export function FeedCard({ post }: FeedCardProps) {
               href={`/profile/${post.user.id}`}
               className="hover:underline"
             >
-              <p className="font-semibold text-sm truncate">{displayName}</p>
-              {post.user.username && (
-                <p className="text-muted-foreground text-xs truncate">
-                  @{post.user.username}
-                </p>
-              )}
+              <p className="font-semibold text-sm truncate">@{displayName}</p>
             </Link>
           </div>
           <span className="text-muted-foreground text-xs shrink-0">

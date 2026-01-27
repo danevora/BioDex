@@ -50,11 +50,8 @@ function formatRelativeTime(dateString: string): string {
 }
 
 function CommentItem({ comment }: { comment: Comment }) {
-  const displayName =
-    comment.author.displayName || comment.author.username || "Explorer";
-  const initials = getInitials(
-    comment.author.displayName || comment.author.username
-  );
+  const displayName = comment.author.username || "Explorer";
+  const initials = getInitials(comment.author.username);
 
   return (
     <div className="flex gap-2 py-2">
@@ -66,7 +63,7 @@ function CommentItem({ comment }: { comment: Comment }) {
       </Avatar>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="font-semibold text-sm truncate">{displayName}</span>
+          <span className="font-semibold text-sm truncate">@{displayName}</span>
           <span className="text-muted-foreground text-xs shrink-0">
             {formatRelativeTime(comment.createdAt)}
           </span>

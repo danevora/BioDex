@@ -31,7 +31,6 @@ export async function GET(request: Request) {
           select: {
             id: true,
             username: true,
-            displayName: true,
             image: true,
           },
         },
@@ -60,7 +59,6 @@ export async function GET(request: Request) {
       followers: followers.map((f) => ({
         id: f.follower.id,
         username: f.follower.username,
-        displayName: f.follower.displayName,
         image: f.follower.image,
         followedAt: f.createdAt,
         isFollowing: followingBackSet.has(f.follower.id),

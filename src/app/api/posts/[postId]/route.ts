@@ -22,7 +22,6 @@ export async function GET(request: Request, { params }: RouteParams) {
           select: {
             id: true,
             username: true,
-            displayName: true,
             image: true,
           },
         },
@@ -64,7 +63,6 @@ export async function GET(request: Request, { params }: RouteParams) {
       user: {
         id: post.user.id,
         username: post.user.username,
-        displayName: post.user.displayName,
         image: post.user.image,
       },
       capture: {

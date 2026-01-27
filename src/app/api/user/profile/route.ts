@@ -18,7 +18,7 @@ export async function GET() {
       select: {
         id: true,
         username: true,
-        displayName: true,
+        email: true,
         bio: true,
         image: true,
         createdAt: true,
@@ -39,7 +39,7 @@ export async function GET() {
     return NextResponse.json({
       id: user.id,
       username: user.username,
-      displayName: user.displayName,
+      email: user.email,
       bio: user.bio,
       image: user.image,
       createdAt: user.createdAt,
@@ -65,7 +65,7 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const { username, displayName, bio } = body;
+    const { username, bio } = body;
 
     // Validate username if provided
     if (username !== undefined) {
@@ -95,16 +95,6 @@ export async function PATCH(request: Request) {
       }
     }
 
-    // Validate displayName length
-    if (displayName !== undefined && displayName !== null) {
-      if (displayName.length > 50) {
-        return NextResponse.json(
-          { error: "Display name must be 50 characters or less" },
-          { status: 400 }
-        );
-      }
-    }
-
     // Validate bio length
     if (bio !== undefined && bio !== null) {
       if (bio.length > 160) {
@@ -121,15 +111,12 @@ export async function PATCH(request: Request) {
         ...(username !== undefined && {
           username: username === "" ? null : username,
         }),
-        ...(displayName !== undefined && {
-          displayName: displayName === "" ? null : displayName,
-        }),
         ...(bio !== undefined && { bio: bio === "" ? null : bio }),
       },
       select: {
         id: true,
         username: true,
-        displayName: true,
+        email: true,
         bio: true,
         image: true,
         createdAt: true,
@@ -146,7 +133,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({
       id: updatedUser.id,
       username: updatedUser.username,
-      displayName: updatedUser.displayName,
+      email: updatedUser.email,
       bio: updatedUser.bio,
       image: updatedUser.image,
       createdAt: updatedUser.createdAt,

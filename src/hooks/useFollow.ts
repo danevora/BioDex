@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 export interface FollowUser {
   id: string;
   username: string | null;
-  displayName: string | null;
   image: string | null;
   followerCount: number;
   followingCount: number;

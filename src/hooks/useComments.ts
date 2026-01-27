@@ -3,7 +3,6 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 export interface CommentAuthor {
   id: string;
   username: string | null;
-  displayName: string | null;
   image: string | null;
 }
 

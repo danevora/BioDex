@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 export interface UserProfile {
   id: string;
   username: string | null;
-  displayName: string | null;
+  email: string | null;
   bio: string | null;
   image: string | null;
   createdAt: string;
@@ -37,7 +37,6 @@ async function fetchPublicProfile(userId: string): Promise<UserProfile & { isFol
 
 interface UpdateProfileParams {
   username?: string;
-  displayName?: string;
   bio?: string;
 }
 
@@ -92,7 +91,6 @@ export function useUpdateProfile() {
 export interface PostUser {
   id: string;
   username: string | null;
-  displayName: string | null;
   image: string | null;
 }
 

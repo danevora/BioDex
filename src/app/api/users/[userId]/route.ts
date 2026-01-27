@@ -16,7 +16,6 @@ export async function GET(request: Request, { params }: RouteParams) {
       select: {
         id: true,
         username: true,
-        displayName: true,
         bio: true,
         image: true,
         createdAt: true,
@@ -51,7 +50,6 @@ export async function GET(request: Request, { params }: RouteParams) {
     return NextResponse.json({
       id: user.id,
       username: user.username,
-      displayName: user.displayName,
       bio: user.bio,
       image: user.image,
       createdAt: user.createdAt,

@@ -70,7 +70,6 @@ export async function POST(request: Request, { params }: RouteParams) {
           select: {
             id: true,
             username: true,
-            displayName: true,
             image: true,
           },
         },
@@ -134,7 +133,6 @@ export async function GET(request: Request, { params }: RouteParams) {
           select: {
             id: true,
             username: true,
-            displayName: true,
             image: true,
           },
         },
