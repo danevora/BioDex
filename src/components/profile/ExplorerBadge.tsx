@@ -60,7 +60,7 @@ export function ExplorerBadge({
                   onClick={onEditClick}
                   className="hidden sm:inline-flex"
                 >
-                  Edit Profile
+                  Profile Settings
                 </Button>
               )}
             </div>
@@ -107,7 +107,7 @@ export function ExplorerBadge({
                 onClick={onEditClick}
                 className="mt-4 sm:hidden w-full"
               >
-                Edit Profile
+                Profile Settings
               </Button>
             )}
           </div>
