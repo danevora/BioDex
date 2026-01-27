@@ -38,15 +38,18 @@ async function fetchPublicProfile(userId: string): Promise<UserProfile & { isFol
 interface UpdateProfileParams {
   username?: string;
   bio?: string;
+  image?: File;
 }
 
 async function updateProfile(params: UpdateProfileParams): Promise<UserProfile> {
+  const formData = new FormData();
+  if (params.username !== undefined) formData.append("username", params.username);
+  if (params.bio !== undefined) formData.append("bio", params.bio);
+  if (params.image) formData.append("image", params.image);
+
   const response = await fetch("/api/user/profile", {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(params),
+    body: formData,
   });
 
   if (!response.ok) {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { uploadProfileImage } from "@/lib/storage";
 
 // Username validation: alphanumeric with underscores, 3-20 chars
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
@@ -64,8 +65,10 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { username, bio } = body;
+    const formData = await request.formData();
+    const username = formData.get("username") as string | null;
+    const bio = formData.get("bio") as string | null;
+    const imageFile = formData.get("image") as File | null;
 
     // Validate username if provided
     if (username !== undefined) {
@@ -105,14 +108,43 @@ export async function PATCH(request: Request) {
       }
     }
 
+    // Handle profile image upload
+    let imageUrl: string | undefined;
+    if (imageFile && imageFile.size > 0) {
+      try {
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        const result = await uploadProfileImage(
+          session.user.id,
+          buffer,
+          imageFile.type
+        );
+        imageUrl = result.url;
+      } catch (error) {
+        if (error instanceof Error) {
+          return NextResponse.json({ error: error.message }, { status: 400 });
+        }
+        return NextResponse.json(
+          { error: "Failed to upload image" },
+          { status: 500 }
+        );
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateData: Record<string, any> = {};
+    if (username !== null && username !== "") {
+      updateData.username = username;
+    }
+    if (bio !== null) {
+      updateData.bio = bio === "" ? null : bio;
+    }
+    if (imageUrl) {
+      updateData.image = imageUrl;
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        ...(username !== undefined && {
-          username: username === "" ? null : username,
-        }),
-        ...(bio !== undefined && { bio: bio === "" ? null : bio }),
-      },
+      data: updateData,
       select: {
         id: true,
         username: true,

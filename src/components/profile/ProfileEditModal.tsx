@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Camera, Loader2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -21,10 +22,19 @@ interface ProfileEditModalProps {
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 const MAX_BIO_LENGTH = 160;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+function getInitials(username: string | null, email: string | null): string {
+  if (username) return username.slice(0, 2).toUpperCase();
+  if (email) return email.slice(0, 2).toUpperCase();
+  return "??";
+}
 
 interface FormErrors {
   username?: string;
   bio?: string;
+  image?: string;
 }
 
 interface ProfileEditFormProps {
@@ -35,11 +45,41 @@ interface ProfileEditFormProps {
 
 function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps) {
   const updateProfile = useUpdateProfile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState(profile.username || "");
   const [bio, setBio] = useState(profile.bio || "");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [apiError, setApiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setErrors((prev) => ({ ...prev, image: "Only JPEG, PNG, WebP, and GIF are allowed" }));
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setErrors((prev) => ({ ...prev, image: "Image must be under 5MB" }));
+      return;
+    }
+
+    setErrors((prev) => ({ ...prev, image: undefined }));
+    setImageFile(file);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -73,6 +113,7 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
       await updateProfile.mutateAsync({
         username: username.trim() || undefined,
         bio: bio.trim() || undefined,
+        ...(imageFile && { image: imageFile }),
       });
 
       onSuccess();
@@ -99,6 +140,37 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
           {apiError}
         </div>
       )}
+
+      {/* Avatar */}
+      <div className="flex flex-col items-center gap-2">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isLoading}
+          className="relative group rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50"
+        >
+          <Avatar className="h-20 w-20">
+            <AvatarImage src={imagePreview || profile.image || undefined} />
+            <AvatarFallback className="text-lg">
+              {getInitials(profile.username, profile.email)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <Camera className="h-6 w-6 text-white" />
+          </div>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleImageSelect}
+          className="hidden"
+        />
+        <p className="text-xs text-muted-foreground">Click to change photo</p>
+        {errors.image && (
+          <p className="text-xs text-red-600">{errors.image}</p>
+        )}
+      </div>
 
       {/* Username */}
       <div>
