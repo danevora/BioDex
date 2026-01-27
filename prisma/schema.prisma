@@ -94,9 +94,10 @@ model Animal {
   blurb          String   @db.Text
   hint           String   @default("")
   defaultImage   String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  isActive          Boolean  @default(true)
+  isUserSubmitted   Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   captures Capture[]
 }

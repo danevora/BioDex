@@ -47,8 +47,15 @@ export type Region =
   | "Pacific"
   | "Alaska"
   | "Hawaii"
-  | "Worldwide"
-  | "North America";
+  | "North America"
+  | "Central America"
+  | "South America"
+  | "Europe"
+  | "Africa"
+  | "Asia"
+  | "Oceania"
+  | "Antarctica"
+  | "Worldwide";
 
 export interface AnimalFile {
   version: string;
