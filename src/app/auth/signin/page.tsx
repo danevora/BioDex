@@ -1,15 +1,26 @@
 "use client";
 
+import { Suspense } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SignInForm } from "@/components/auth/SignInForm";
 import { Button } from "@/components/ui/button";
 
-export default function SignInPage() {
+function RegistrationBanner() {
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered");
 
+  if (!registered) return null;
+
+  return (
+    <div className="p-3 text-sm text-emerald-600 bg-emerald-50 rounded-md text-center">
+      Account created successfully! Please sign in.
+    </div>
+  );
+}
+
+export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -18,11 +29,9 @@ export default function SignInPage() {
           <h2 className="mt-2 text-xl text-gray-600">Sign in to your account</h2>
         </div>
 
-        {registered && (
-          <div className="p-3 text-sm text-emerald-600 bg-emerald-50 rounded-md text-center">
-            Account created successfully! Please sign in.
-          </div>
-        )}
+        <Suspense fallback={null}>
+          <RegistrationBanner />
+        </Suspense>
 
         <div className="bg-white py-8 px-6 shadow rounded-lg">
           <SignInForm />

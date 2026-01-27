@@ -153,7 +153,7 @@ export function DexFilters({
                 : "bg-background hover:bg-accent"
             }`}
           >
-            Captured
+            Discovered
           </button>
           <button
             onClick={() => onCaptureStatusChange("undiscovered")}

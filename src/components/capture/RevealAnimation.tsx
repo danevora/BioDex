@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Animal } from "@/types/animal";
+
+const MAX_CAPTION_LENGTH = 280;
 
 interface RevealAnimationProps {
   animal: Animal;
   imageUrl: string;
-  onClose: () => void;
+  onClose: (shareOptions?: { shareToFeed: boolean; caption: string }) => void;
 }
 
 export function RevealAnimation({ animal, imageUrl, onClose }: RevealAnimationProps) {
@@ -121,18 +124,78 @@ export function RevealAnimation({ animal, imageUrl, onClose }: RevealAnimationPr
         </div>
       </motion.div>
 
-      {/* Action button */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-        className="mt-6"
-      >
-        <Button onClick={onClose} size="lg">
-          Add to BioDex
-        </Button>
-      </motion.div>
+      {/* Share to Feed section */}
+      <ShareToFeedSection onClose={onClose} />
     </div>
+  );
+}
+
+interface ShareToFeedSectionProps {
+  onClose: (shareOptions?: { shareToFeed: boolean; caption: string }) => void;
+}
+
+function ShareToFeedSection({ onClose }: ShareToFeedSectionProps) {
+  const [shareToFeed, setShareToFeed] = useState(false);
+  const [caption, setCaption] = useState("");
+
+  const handleSubmit = () => {
+    onClose({ shareToFeed, caption: caption.trim() });
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1.2 }}
+      className="mt-6 w-full max-w-xs space-y-4"
+    >
+      {/* Share toggle */}
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="share-to-feed"
+          checked={shareToFeed}
+          onCheckedChange={(checked) => setShareToFeed(checked === true)}
+        />
+        <label
+          htmlFor="share-to-feed"
+          className="text-sm font-medium cursor-pointer select-none"
+        >
+          Share to Feed
+        </label>
+      </div>
+
+      {/* Caption input (shown when share is enabled) */}
+      {shareToFeed && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="space-y-2"
+        >
+          <div className="relative">
+            <textarea
+              placeholder="Add a caption... (optional)"
+              value={caption}
+              onChange={(e) => {
+                if (e.target.value.length <= MAX_CAPTION_LENGTH) {
+                  setCaption(e.target.value);
+                }
+              }}
+              className="w-full p-3 rounded-lg border bg-background resize-none text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary"
+              rows={3}
+            />
+            <span className="absolute bottom-2 right-2 text-xs text-muted-foreground">
+              {caption.length}/{MAX_CAPTION_LENGTH}
+            </span>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Action button */}
+      <Button onClick={handleSubmit} size="lg" className="w-full">
+        {shareToFeed ? "Share & Add to BioDex" : "Add to BioDex"}
+      </Button>
+    </motion.div>
   );
 }
 

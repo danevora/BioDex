@@ -12,15 +12,22 @@ import { ImageUploader } from "./ImageUploader";
 import { ScanningAnimation } from "./ScanningAnimation";
 import { RevealAnimation, NoMatchResult } from "./RevealAnimation";
 import { identifyAnimal, type IdentifyResult } from "@/lib/api";
+import { useCreatePost } from "@/hooks/useFeed";
 import type { Animal } from "@/types/animal";
+import type { Capture } from "@/types/animal";
 
 type CaptureStep = "upload" | "scanning" | "result" | "saving";
+
+interface ShareOptions {
+  shareToFeed: boolean;
+  caption: string;
+}
 
 interface CaptureModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   animals: Animal[];
-  onCapture: (animalId: string, image: File, confidence?: number) => Promise<void>;
+  onCapture: (animalId: string, image: File, confidence?: number) => Promise<Capture>;
 }
 
 export function CaptureModal({
@@ -35,6 +42,8 @@ export function CaptureModal({
   const [result, setResult] = useState<IdentifyResult | null>(null);
   const [matchedAnimal, setMatchedAnimal] = useState<Animal | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const createPost = useCreatePost();
 
   const resetState = useCallback(() => {
     setStep("upload");
@@ -87,7 +96,7 @@ export function CaptureModal({
     setStep("result");
   };
 
-  const handleCapture = async () => {
+  const handleCapture = async (shareOptions?: ShareOptions) => {
     if (!result?.success || !result.matched || !selectedImage) return;
 
     setStep("saving");
@@ -95,7 +104,21 @@ export function CaptureModal({
 
     try {
       const confidence = result.confidence;
-      await onCapture(result.animal_id, selectedImage, confidence);
+      const capture = await onCapture(result.animal_id, selectedImage, confidence);
+
+      // Create post if sharing to feed
+      if (shareOptions?.shareToFeed && capture?.id) {
+        try {
+          await createPost.mutateAsync({
+            captureId: capture.id,
+            caption: shareOptions.caption || undefined,
+          });
+        } catch {
+          // Post creation failed but capture succeeded - don't block closing
+          console.error("Failed to share to feed, but capture was saved");
+        }
+      }
+
       handleOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save capture");
@@ -113,7 +136,7 @@ export function CaptureModal({
         {step === "upload" && (
           <>
             <DialogHeader>
-              <DialogTitle>Capture a Creature</DialogTitle>
+              <DialogTitle>Discover a Creature</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <ImageUploader
@@ -140,7 +163,7 @@ export function CaptureModal({
         {step === "saving" && (
           <div className="py-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-4" />
-            <p className="text-muted-foreground">Saving your capture...</p>
+            <p className="text-muted-foreground">Saving your discovery...</p>
           </div>
         )}
 
@@ -153,7 +176,7 @@ export function CaptureModal({
                   variant="outline"
                   size="sm"
                   className="mt-2 w-full"
-                  onClick={handleCapture}
+                  onClick={() => handleCapture()}
                 >
                   Retry
                 </Button>
