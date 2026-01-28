@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Loader2 } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { Camera, Loader2, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -12,6 +13,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useUpdateProfile, UserProfile } from "@/hooks/useUserProfile";
 
 interface ProfileEditModalProps {
@@ -35,6 +44,115 @@ interface FormErrors {
   username?: string;
   bio?: string;
   image?: string;
+}
+
+function DeleteAccountSection({ username }: { username: string | null }) {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const usernameMatch = username && confirmText === username;
+
+  const handleDeleteAccount = async () => {
+    if (!usernameMatch) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const res = await fetch("/api/user/account", { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete account");
+      }
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error ? error.message : "Failed to delete account"
+      );
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="border-t border-destructive/30 mt-4 pt-4">
+        <h3 className="text-sm font-medium text-destructive mb-2">
+          Danger Zone
+        </h3>
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={() => setShowDeleteDialog(true)}
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete Account
+        </Button>
+      </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={(open) => {
+        setShowDeleteDialog(open);
+        if (!open) {
+          setConfirmText("");
+          setDeleteError(null);
+        }
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              All your discoveries, posts, and profile data will be permanently
+              deleted. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {username && (
+            <div>
+              <label className="block text-sm text-muted-foreground mb-1">
+                Type <span className="font-semibold text-foreground">{username}</span> to confirm
+              </label>
+              <input
+                type="text"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                disabled={isDeleting}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-destructive focus:border-transparent disabled:opacity-50"
+                placeholder={username}
+              />
+            </div>
+          )}
+          {deleteError && (
+            <p className="text-sm text-red-600">{deleteError}</p>
+          )}
+          <AlertDialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={!usernameMatch || isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Account"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 }
 
 interface ProfileEditFormProps {
@@ -281,6 +399,8 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
         </Button>
       </DialogFooter>
 
+      {/* Danger Zone */}
+      <DeleteAccountSection username={profile.username} />
     </form>
   );
 }
