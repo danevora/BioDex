@@ -21,7 +21,7 @@ interface CreateCaptureParams {
 }
 
 async function createCapture(params: CreateCaptureParams): Promise<Capture> {
-  const compressed = await compressImage(params.image);
+  const compressed = await compressImage(params.image, 1);
   const formData = new FormData();
   formData.append("animalId", params.animalId);
   formData.append("image", compressed);

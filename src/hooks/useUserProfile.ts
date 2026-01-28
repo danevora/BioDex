@@ -48,7 +48,7 @@ async function updateProfile(params: UpdateProfileParams): Promise<UserProfile> 
   if (params.username !== undefined) formData.append("username", params.username);
   if (params.bio !== undefined) formData.append("bio", params.bio);
   if (params.image) {
-    const compressed = await compressImage(params.image);
+    const compressed = await compressImage(params.image, 1);
     formData.append("image", compressed);
   }
 
