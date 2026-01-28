@@ -3,11 +3,29 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, EllipsisVertical, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Post } from "@/hooks/useUserProfile";
+import { useDeletePost } from "@/hooks/useFeed";
 import { LikeButton } from "./LikeButton";
 import { CommentSection } from "./CommentSection";
 import { cn } from "@/lib/utils";
@@ -51,11 +69,15 @@ function formatRelativeTime(dateString: string): string {
 }
 
 export function FeedCard({ post }: FeedCardProps) {
+  const { data: session } = useSession();
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [commentCount, setCommentCount] = useState(post.commentCount);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const deletePost = useDeletePost();
 
   const displayName = post.user.username || "Explorer";
   const initials = getInitials(post.user.username);
+  const isOwner = session?.user?.id === post.user.id;
 
   return (
     <Card className="w-full overflow-hidden">
@@ -81,6 +103,24 @@ export function FeedCard({ post }: FeedCardProps) {
           <span className="text-muted-foreground text-xs shrink-0">
             {formatRelativeTime(post.createdAt)}
           </span>
+          {isOwner && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <EllipsisVertical className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardContent>
 
@@ -154,6 +194,27 @@ export function FeedCard({ post }: FeedCardProps) {
         isOpen={isCommentsOpen}
         onCommentCountChange={setCommentCount}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deletePost.mutate(post.id)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
