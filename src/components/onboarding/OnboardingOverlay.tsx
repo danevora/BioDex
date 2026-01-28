@@ -17,7 +17,7 @@ const STEPS = [
   {
     title: "Discover Animals",
     description:
-      "Tap this button to take a photo. We'll identify the species and add it to your BioDex. Get out there and start exploring!",
+      "Tap this button to take a photo. We'll identify the species and add it to your BioDex.",
   },
   {
     title: "Respect Wildlife",
