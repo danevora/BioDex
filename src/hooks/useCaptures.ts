@@ -72,6 +72,7 @@ export function useDeleteCapture() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["captures"] });
       queryClient.invalidateQueries({ queryKey: ["userStats"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
     },
   });
@@ -85,6 +86,7 @@ export function useCreateCapture() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["captures"] });
       queryClient.invalidateQueries({ queryKey: ["userStats"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
     },
   });
 }
