@@ -21,7 +21,7 @@ export default function ProfilePage() {
 
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const { data: animals = [] } = useAnimals();
-  const { data: captures = [], isLoading: isCapturesLoading } = useCaptures();
+  const { data: captures = [], isLoading: isCapturesLoading, refetch: refetchCaptures } = useCaptures();
   const createCapture = useCreateCapture();
 
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
@@ -104,7 +104,10 @@ export default function ProfilePage() {
     return capture;
   };
 
-  const handleCloseDetail = () => {
+  const handleCloseDetail = async () => {
+    if (newCaptureImageUrl) {
+      await refetchCaptures();
+    }
     setSelectedAnimal(null);
     setNewCaptureImageUrl(null);
   };
