@@ -19,6 +19,21 @@ const STEPS = [
     description:
       "Tap this button to take a photo. We'll identify the species and add it to your BioDex. Get out there and start exploring!",
   },
+  {
+    title: "Respect Wildlife",
+    description:
+      "Always respect animals and their habitats. Never disturb, chase, or stress wildlife for a photo. Safety — yours and theirs — always comes first.",
+  },
+  {
+    title: "Get Out There",
+    description:
+      "Uploading internet photos is allowed, but BioDex was made to encourage going outside and experiencing wildlife firsthand. Your own photos make your BioDex uniquely yours!",
+  },
+  {
+    title: "Early Access",
+    description:
+      "BioDex is in early development and we'd love your feedback! If you find a bug or have an idea, use the 'Report an Issue' option in the menu (the three-dot button).",
+  },
 ];
 
 export function OnboardingOverlay() {
@@ -56,7 +71,7 @@ export function OnboardingOverlay() {
   if (!isOnboarding) return null;
 
   const step = STEPS[currentStep - 1];
-  const isLastStep = currentStep === 3;
+  const isLastStep = currentStep === STEPS.length;
 
   return (
     <div className="fixed inset-0 z-[100]">
@@ -90,7 +105,7 @@ export function OnboardingOverlay() {
         <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
           {/* Step dots */}
           <div className="flex justify-center gap-2 mb-4">
-            {[1, 2, 3].map((s) => (
+            {STEPS.map((_, i) => i + 1).map((s) => (
               <div
                 key={s}
                 className={`w-2 h-2 rounded-full transition-colors ${
