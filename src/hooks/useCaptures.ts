@@ -56,6 +56,27 @@ export function useCaptures() {
   });
 }
 
+export function useDeleteCapture() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (captureId: string) => {
+      const response = await fetch(`/api/captures/${captureId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || "Failed to delete discovery");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["captures"] });
+      queryClient.invalidateQueries({ queryKey: ["userStats"] });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+}
+
 export function useCreateCapture() {
   const queryClient = useQueryClient();
 
