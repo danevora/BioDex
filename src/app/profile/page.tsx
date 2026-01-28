@@ -67,6 +67,11 @@ export default function ProfilePage() {
     return map;
   }, [captures]);
 
+  // Build set of captured animal IDs for re-discovery confirmation
+  const capturedAnimalIds = useMemo(() => {
+    return new Set(captures.map((c) => c.animalId));
+  }, [captures]);
+
   // Build capture ID map: animalId -> captureId
   const captureIdMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -222,6 +227,7 @@ export default function ProfilePage() {
         open={captureModalOpen}
         onOpenChange={setCaptureModalOpen}
         animals={animals}
+        capturedAnimalIds={capturedAnimalIds}
         onCapture={handleCapture}
       />
 

@@ -1,12 +1,22 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "./ImageUploader";
 import { ScanningAnimation } from "./ScanningAnimation";
@@ -27,6 +37,7 @@ interface CaptureModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   animals: Animal[];
+  capturedAnimalIds?: Set<string>;
   onCapture: (animalId: string, image: File, confidence?: number) => Promise<Capture>;
 }
 
@@ -34,6 +45,7 @@ export function CaptureModal({
   open,
   onOpenChange,
   animals,
+  capturedAnimalIds,
   onCapture,
 }: CaptureModalProps) {
   const [step, setStep] = useState<CaptureStep>("upload");
@@ -46,6 +58,8 @@ export function CaptureModal({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submittedCapture, setSubmittedCapture] = useState<{ id: string; animalId: string; imageUrl: string } | null>(null);
   const [isCorrection, setIsCorrection] = useState(false);
+  const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
+  const pendingShareOptions = useRef<ShareOptions | undefined>(undefined);
 
   const createPost = useCreatePost();
 
@@ -63,6 +77,8 @@ export function CaptureModal({
     setSubmitError(null);
     setSubmittedCapture(null);
     setIsCorrection(false);
+    setShowReplaceConfirm(false);
+    pendingShareOptions.current = undefined;
   }, [imagePreviewUrl]);
 
   const handleOpenChange = (open: boolean) => {
@@ -145,6 +161,14 @@ export function CaptureModal({
   const handleCapture = async (shareOptions?: ShareOptions) => {
     if (!result?.success || !result.matched || !selectedImage) return;
 
+    // Check if this animal is already discovered and needs confirmation
+    const isAlreadyDiscovered = capturedAnimalIds?.has(result.animal_id);
+    if (isAlreadyDiscovered && !showReplaceConfirm && !submittedCapture) {
+      pendingShareOptions.current = shareOptions;
+      setShowReplaceConfirm(true);
+      return;
+    }
+
     // If capture was already created server-side via submit, skip onCapture
     if (submittedCapture) {
       setStep("saving");
@@ -209,11 +233,24 @@ export function CaptureModal({
     setIsCorrection(true);
   };
 
+  const handleConfirmReplace = () => {
+    setShowReplaceConfirm(false);
+    handleCapture(pendingShareOptions.current);
+    pendingShareOptions.current = undefined;
+  };
+
+  const handleCancelReplace = () => {
+    setShowReplaceConfirm(false);
+    pendingShareOptions.current = undefined;
+    handleOpenChange(false);
+  };
+
   const handleTryAgain = () => {
     resetState();
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md" showCloseButton={step !== "scanning" && step !== "saving"}>
         {step === "upload" && (
@@ -289,5 +326,21 @@ export function CaptureModal({
         )}
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={showReplaceConfirm} onOpenChange={setShowReplaceConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Already Discovered</AlertDialogTitle>
+          <AlertDialogDescription>
+            You&apos;ve already discovered this animal. Save this new photo? It will replace your current one.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancelReplace}>Keep Current</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmReplace}>Replace Photo</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
