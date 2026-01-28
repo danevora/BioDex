@@ -3,6 +3,7 @@ export interface IdentifyMatchResult {
   matched: true;
   animal_id: string;
   confidence: number;
+  taxonomic_class?: string | null;
 }
 
 export interface IdentifyNoMatchResult {
@@ -77,7 +78,7 @@ export async function submitAnimal(
   }
 }
 
-async function compressImage(file: File, maxSizeMB = 3): Promise<File> {
+export async function compressImage(file: File, maxSizeMB = 3): Promise<File> {
   if (file.size <= maxSizeMB * 1024 * 1024) return file;
 
   const bitmap = await createImageBitmap(file);

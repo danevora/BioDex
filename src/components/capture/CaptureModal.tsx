@@ -45,6 +45,7 @@ export function CaptureModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submittedCapture, setSubmittedCapture] = useState<{ id: string; animalId: string; imageUrl: string } | null>(null);
+  const [isCorrection, setIsCorrection] = useState(false);
 
   const createPost = useCreatePost();
 
@@ -61,6 +62,7 @@ export function CaptureModal({
     setIsSubmitting(false);
     setSubmitError(null);
     setSubmittedCapture(null);
+    setIsCorrection(false);
   }, [imagePreviewUrl]);
 
   const handleOpenChange = (open: boolean) => {
@@ -195,6 +197,18 @@ export function CaptureModal({
     }
   };
 
+  const handleRejectMatch = () => {
+    setResult({
+      success: true,
+      matched: false,
+      detected_animal: matchedAnimal?.commonName || null,
+      taxonomic_class: result?.success && result.matched ? result.taxonomic_class : null,
+    });
+    setMatchedAnimal(null);
+    setSubmittedCapture(null);
+    setIsCorrection(true);
+  };
+
   const handleTryAgain = () => {
     resetState();
   };
@@ -252,7 +266,7 @@ export function CaptureModal({
               </div>
             )}
             {result.success && result.matched && matchedAnimal && selectedImage && imagePreviewUrl ? (
-              <RevealAnimation animal={matchedAnimal} imageUrl={imagePreviewUrl} onClose={handleCapture} />
+              <RevealAnimation animal={matchedAnimal} imageUrl={imagePreviewUrl} onClose={handleCapture} onReject={handleRejectMatch} />
             ) : result.success && !result.matched ? (
               <NoMatchResult
                 detectedAnimal={result.detected_animal}
@@ -260,6 +274,7 @@ export function CaptureModal({
                 onSubmitAnimal={handleSubmitAnimal}
                 isSubmitting={isSubmitting}
                 submitError={submitError}
+                isCorrection={isCorrection}
               />
             ) : (
               <NoMatchResult

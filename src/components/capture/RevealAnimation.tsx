@@ -14,9 +14,10 @@ interface RevealAnimationProps {
   animal: Animal;
   imageUrl: string;
   onClose: (shareOptions?: { shareToFeed: boolean; caption: string }) => void;
+  onReject?: () => void;
 }
 
-export function RevealAnimation({ animal, imageUrl, onClose }: RevealAnimationProps) {
+export function RevealAnimation({ animal, imageUrl, onClose, onReject }: RevealAnimationProps) {
   useEffect(() => {
     const duration = 2000;
     const end = Date.now() + duration;
@@ -127,6 +128,22 @@ export function RevealAnimation({ animal, imageUrl, onClose }: RevealAnimationPr
 
       {/* Share to Feed section */}
       <ShareToFeedSection onClose={onClose} />
+
+      {onReject && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="mt-2"
+        >
+          <button
+            onClick={onReject}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Wrong animal?
+          </button>
+        </motion.div>
+      )}
     </div>
   );
 }
@@ -206,6 +223,7 @@ interface NoMatchResultProps {
   onSubmitAnimal?: (speciesName: string) => void;
   isSubmitting?: boolean;
   submitError?: string | null;
+  isCorrection?: boolean;
 }
 
 export function NoMatchResult({
@@ -214,8 +232,10 @@ export function NoMatchResult({
   onSubmitAnimal,
   isSubmitting,
   submitError,
+  isCorrection: isInitialCorrection,
 }: NoMatchResultProps) {
   const [speciesName, setSpeciesName] = useState(detectedAnimal || "");
+  const [isCorrecting, setIsCorrecting] = useState(isInitialCorrection || false);
 
   const handleSubmit = () => {
     const trimmed = speciesName.trim();
@@ -223,6 +243,13 @@ export function NoMatchResult({
       onSubmitAnimal(trimmed);
     }
   };
+
+  const handleWrongAnimal = () => {
+    setIsCorrecting(true);
+    setSpeciesName("");
+  };
+
+  const showWrongAnimalButton = detectedAnimal && !isCorrecting;
 
   return (
     <motion.div
@@ -234,9 +261,15 @@ export function NoMatchResult({
         <span className="text-4xl">?</span>
       </div>
 
-      <h3 className="text-xl font-semibold mb-2">Not in BioDex</h3>
+      <h3 className="text-xl font-semibold mb-2">
+        {isCorrecting ? "Correct Identification" : "Not in BioDex"}
+      </h3>
 
-      {detectedAnimal ? (
+      {isCorrecting ? (
+        <p className="text-muted-foreground mb-4">
+          Enter the correct species name below.
+        </p>
+      ) : detectedAnimal ? (
         <p className="text-muted-foreground mb-4">
           We detected a <span className="font-medium">{detectedAnimal}</span>,
           but it&apos;s not in the BioDex catalog yet.
@@ -274,6 +307,15 @@ export function NoMatchResult({
       <Button onClick={onTryAgain} variant="outline" disabled={isSubmitting}>
         Try Another Photo
       </Button>
+
+      {showWrongAnimalButton && (
+        <button
+          onClick={handleWrongAnimal}
+          className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Wrong animal?
+        </button>
+      )}
     </motion.div>
   );
 }

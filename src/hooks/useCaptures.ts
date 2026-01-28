@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { Capture } from "@/types/animal";
+import { compressImage } from "@/lib/api";
 
 async function fetchCaptures(): Promise<Capture[]> {
   const response = await fetch("/api/captures");
@@ -20,9 +21,10 @@ interface CreateCaptureParams {
 }
 
 async function createCapture(params: CreateCaptureParams): Promise<Capture> {
+  const compressed = await compressImage(params.image);
   const formData = new FormData();
   formData.append("animalId", params.animalId);
-  formData.append("image", params.image);
+  formData.append("image", compressed);
   if (params.confidence !== undefined) {
     formData.append("confidence", params.confidence.toString());
   }
@@ -33,8 +35,11 @@ async function createCapture(params: CreateCaptureParams): Promise<Capture> {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to create capture");
+    if (response.status === 413) {
+      throw new Error("Image is too large. Please try a smaller photo.");
+    }
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to save discovery");
   }
 
   return response.json();

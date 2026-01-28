@@ -319,6 +319,7 @@ export async function POST(request: NextRequest) {
           matched: true,
           animal_id: matchResult.matched_id,
           confidence: confidence,
+          taxonomic_class: classification.taxonomic_class,
         });
       } else if (confidence >= THRESHOLDS.REJECT) {
         // Medium confidence - accept but flag
@@ -328,6 +329,7 @@ export async function POST(request: NextRequest) {
           animal_id: matchResult.matched_id,
           confidence: confidence,
           low_confidence: true,
+          taxonomic_class: classification.taxonomic_class,
         });
       } else {
         // Low confidence - reject match
