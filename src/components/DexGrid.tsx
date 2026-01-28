@@ -8,7 +8,9 @@ import { AnimalCard } from "./AnimalCard";
 interface DexGridProps {
   animals: Animal[];
   captureMap?: Map<string, string>;
+  captureIdMap?: Map<string, string>;
   onAnimalClick?: (animal: Animal) => void;
+  onRemoveDiscovery?: (captureId: string) => void;
 }
 
 const COLUMN_BREAKPOINTS = [
@@ -27,7 +29,9 @@ function getColumnCount(width: number): number {
 export function DexGrid({
   animals,
   captureMap = new Map(),
+  captureIdMap = new Map(),
   onAnimalClick,
+  onRemoveDiscovery,
 }: DexGridProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState(2);
@@ -93,13 +97,16 @@ export function DexGrid({
               >
                 {rows[virtualRow.index].map((animal) => {
                   const userImage = captureMap.get(animal.id);
+                  const captureId = captureIdMap.get(animal.id);
                   return (
                     <AnimalCard
                       key={animal.id}
                       animal={animal}
                       isCaptured={!!userImage}
                       userImage={userImage}
+                      captureId={captureId}
                       onClick={() => onAnimalClick?.(animal)}
+                      onRemoveDiscovery={onRemoveDiscovery}
                     />
                   );
                 })}

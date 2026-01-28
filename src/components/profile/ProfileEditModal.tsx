@@ -280,7 +280,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
           )}
         </Button>
       </DialogFooter>
-
     </form>
   );
 }

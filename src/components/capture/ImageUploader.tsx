@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
-import { Camera, Upload, X } from "lucide-react";
+import { Camera, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -65,23 +65,13 @@ export function ImageUploader({
 
   if (selectedImage && previewUrl) {
     return (
-      <div className="relative">
-        <div className="relative aspect-square w-full max-w-sm mx-auto rounded-lg overflow-hidden bg-muted">
-          <Image
-            src={previewUrl}
-            alt="Selected image"
-            fill
-            className="object-cover"
-          />
-        </div>
-        <Button
-          variant="destructive"
-          size="icon-sm"
-          className="absolute top-2 right-2"
-          onClick={handleClear}
-        >
-          <X className="size-4" />
-        </Button>
+      <div className="relative aspect-square w-full max-w-sm mx-auto rounded-lg overflow-hidden bg-muted">
+        <Image
+          src={previewUrl}
+          alt="Selected image"
+          fill
+          className="object-cover"
+        />
       </div>
     );
   }

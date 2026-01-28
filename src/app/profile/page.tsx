@@ -11,7 +11,7 @@ import { ExplorerBadge, ProfileEditModal } from "@/components/profile";
 import { MobileMenuButton } from "@/components/navigation/BottomNav";
 import { ExplorerSearch } from "@/components/feed";
 import { useAnimals } from "@/hooks/useAnimals";
-import { useCaptures, useCreateCapture } from "@/hooks/useCaptures";
+import { useCaptures, useCreateCapture, useDeleteCapture } from "@/hooks/useCaptures";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Animal } from "@/types/animal";
 
@@ -21,8 +21,9 @@ export default function ProfilePage() {
 
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const { data: animals = [] } = useAnimals();
-  const { data: captures = [], isLoading: isCapturesLoading } = useCaptures();
+  const { data: captures = [], isLoading: isCapturesLoading, refetch: refetchCaptures } = useCaptures();
   const createCapture = useCreateCapture();
+  const deleteCapture = useDeleteCapture();
 
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
   const [newCaptureImageUrl, setNewCaptureImageUrl] = useState<string | null>(null);
@@ -66,6 +67,20 @@ export default function ProfilePage() {
     return map;
   }, [captures]);
 
+  // Build set of captured animal IDs for re-discovery confirmation
+  const capturedAnimalIds = useMemo(() => {
+    return new Set(captures.map((c) => c.animalId));
+  }, [captures]);
+
+  // Build capture ID map: animalId -> captureId
+  const captureIdMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const capture of captures) {
+      map.set(capture.animalId, capture.id);
+    }
+    return map;
+  }, [captures]);
+
   // Filter animals based on selected classes and capture status
   const filteredAnimals = useMemo(() => {
     const filtered = animals.filter((animal) => {
@@ -104,7 +119,14 @@ export default function ProfilePage() {
     return capture;
   };
 
-  const handleCloseDetail = () => {
+  const handleRemoveDiscovery = (captureId: string) => {
+    deleteCapture.mutate(captureId);
+  };
+
+  const handleCloseDetail = async () => {
+    if (newCaptureImageUrl) {
+      await refetchCaptures();
+    }
     setSelectedAnimal(null);
     setNewCaptureImageUrl(null);
   };
@@ -183,7 +205,9 @@ export default function ProfilePage() {
             <DexGrid
               animals={filteredAnimals}
               captureMap={captureMap}
+              captureIdMap={captureIdMap}
               onAnimalClick={setSelectedAnimal}
+              onRemoveDiscovery={handleRemoveDiscovery}
             />
           ) : (
             <div className="flex justify-center py-12">
@@ -203,6 +227,7 @@ export default function ProfilePage() {
         open={captureModalOpen}
         onOpenChange={setCaptureModalOpen}
         animals={animals}
+        capturedAnimalIds={capturedAnimalIds}
         onCapture={handleCapture}
       />
 

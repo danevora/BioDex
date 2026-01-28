@@ -52,6 +52,12 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       setCurrentStep(3);
       // Stay on profile page — capture button is visible here
     } else if (currentStep === 3) {
+      setCurrentStep(4);
+    } else if (currentStep === 4) {
+      setCurrentStep(5);
+    } else if (currentStep === 5) {
+      setCurrentStep(6);
+    } else if (currentStep === 6) {
       completeOnboarding.mutate();
       setIsOnboarding(false);
     }
