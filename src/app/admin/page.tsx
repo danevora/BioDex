@@ -100,8 +100,8 @@ export default function AdminPage() {
     }
   };
 
-  const handleReject = async (animalId: string) => {
-    if (!confirm("Reject this animal? This will delete it and all associated captures, posts, and images.")) {
+  const handleDelete = async (animalId: string, confirmMessage: string) => {
+    if (!confirm(confirmMessage)) {
       return;
     }
 
@@ -115,8 +115,12 @@ export default function AdminPage() {
 
       setAnimals((prev) => prev.filter((a) => a.id !== animalId));
     } catch {
-      alert("Failed to reject animal");
+      alert("Failed to delete animal");
     }
+  };
+
+  const handleReject = (animalId: string) => {
+    handleDelete(animalId, "Reject this animal? This will delete it and all associated captures, posts, and images.");
   };
 
   const handleAccept = (animalId: string) => {
@@ -209,9 +213,7 @@ export default function AdminPage() {
                   <th className="py-2 pr-4 font-medium">Class</th>
                   <th className="py-2 pr-4 font-medium">Captures</th>
                   <th className="py-2 pr-4 font-medium">Source</th>
-                  {tab === "review" && (
-                    <th className="py-2 font-medium">Actions</th>
-                  )}
+                  <th className="py-2 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -230,24 +232,34 @@ export default function AdminPage() {
                         <span className="text-muted-foreground">Seeded</span>
                       )}
                     </td>
-                    {tab === "review" && (
-                      <td className="py-2 space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleAccept(animal.id)}
-                        >
-                          Accept
-                        </Button>
+                    <td className="py-2 space-x-2">
+                      {tab === "review" ? (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleAccept(animal.id)}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleReject(animal.id)}
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      ) : (
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => handleReject(animal.id)}
+                          onClick={() => handleDelete(animal.id, "Delete this animal? This will delete it and all associated captures, posts, and images.")}
                         >
-                          Reject
+                          Delete
                         </Button>
-                      </td>
-                    )}
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
