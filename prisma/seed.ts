@@ -137,12 +137,13 @@ async function seedBioDexAccount(): Promise<void> {
   // Upsert BioDex official account
   await prisma.user.upsert({
     where: { id: BIODEX_USER_ID },
-    update: {},
+    update: { image: "/spike.png" },
     create: {
       id: BIODEX_USER_ID,
       username: BIODEX_USERNAME,
       email: "noreply@biodex.app",
       password: randomPassword,
+      image: "/spike.png",
       isSystemUser: true,
       hasOnboarded: true,
     },
