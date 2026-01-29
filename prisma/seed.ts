@@ -4,6 +4,11 @@ import { join } from "path";
 
 const prisma = new PrismaClient();
 
+// Constants
+const BIODEX_USER_ID = "biodex-official";
+const STARTER_ANIMAL_ID = "spike";
+const BIODEX_USERNAME = "BioDex";
+
 // TypeScript types for animal data
 interface AnimalData {
   id: string;
@@ -17,6 +22,7 @@ interface AnimalData {
   regions: string[];
   blurb: string;
   hint: string;
+  isStarterAnimal?: boolean;
 }
 
 interface AnimalFile {
@@ -88,6 +94,7 @@ async function batchUpsert(animals: AnimalData[]): Promise<void> {
             regions: animal.regions,
             blurb: animal.blurb,
             hint: animal.hint,
+            isStarterAnimal: animal.isStarterAnimal ?? false,
           },
           create: {
             id: animal.id,
@@ -101,6 +108,7 @@ async function batchUpsert(animals: AnimalData[]): Promise<void> {
             regions: animal.regions,
             blurb: animal.blurb,
             hint: animal.hint,
+            isStarterAnimal: animal.isStarterAnimal ?? false,
           },
         })
       )
@@ -118,6 +126,78 @@ function getStats(animals: AnimalData[]): Record<string, number> {
   }
 
   return stats;
+}
+
+async function seedBioDexAccount(): Promise<void> {
+  console.log("\nSeeding BioDex account...");
+
+  // Generate a random unusable password
+  const randomPassword = Math.random().toString(36).repeat(3);
+
+  // Upsert BioDex official account
+  await prisma.user.upsert({
+    where: { id: BIODEX_USER_ID },
+    update: {},
+    create: {
+      id: BIODEX_USER_ID,
+      username: BIODEX_USERNAME,
+      email: "noreply@biodex.app",
+      password: randomPassword,
+      isSystemUser: true,
+      hasOnboarded: true,
+    },
+  });
+  console.log("  BioDex account created/verified");
+
+  // Upsert BioDex's capture of Spike
+  await prisma.capture.upsert({
+    where: {
+      userId_animalId: {
+        userId: BIODEX_USER_ID,
+        animalId: STARTER_ANIMAL_ID,
+      },
+    },
+    update: {},
+    create: {
+      userId: BIODEX_USER_ID,
+      animalId: STARTER_ANIMAL_ID,
+      imageUrl: "/spike.png",
+      imagePath: "starter",
+      confidence: 1.0,
+    },
+  });
+  console.log("  BioDex Spike capture created/verified");
+
+  // Create welcome post if none exists
+  const existingPost = await prisma.post.findFirst({
+    where: { userId: BIODEX_USER_ID },
+  });
+
+  if (!existingPost) {
+    const capture = await prisma.capture.findUnique({
+      where: {
+        userId_animalId: {
+          userId: BIODEX_USER_ID,
+          animalId: STARTER_ANIMAL_ID,
+        },
+      },
+    });
+
+    if (capture) {
+      await prisma.post.create({
+        data: {
+          userId: BIODEX_USER_ID,
+          captureId: capture.id,
+          caption: "Welcome to BioDex!",
+        },
+      });
+      console.log("  Welcome post created");
+    }
+  } else {
+    console.log("  Welcome post already exists");
+  }
+
+  console.log("BioDex account seeding complete!");
 }
 
 async function main() {
@@ -150,6 +230,9 @@ async function main() {
   // Verify the count
   const dbCount = await prisma.animal.count();
   console.log(`\nSeeding complete! ${dbCount} animals in database.`);
+
+  // Seed BioDex account and welcome post
+  await seedBioDexAccount();
 }
 
 main()

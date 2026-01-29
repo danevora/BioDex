@@ -27,6 +27,7 @@ model User {
   displayName String?
   bio         String? @db.Text
   hasOnboarded Boolean @default(false)
+  isSystemUser Boolean @default(false)
 
   // NextAuth relations
   accounts Account[]
@@ -96,6 +97,7 @@ model Animal {
   defaultImage   String?
   isActive          Boolean  @default(true)
   isUserSubmitted   Boolean  @default(false)
+  isStarterAnimal   Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

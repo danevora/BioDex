@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadCaptureImage, deleteCaptureImage } from "@/lib/storage";
+import { STARTER_ANIMAL_ID } from "@/lib/constants";
 
 export async function GET() {
   try {
@@ -44,6 +45,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Animal ID and image are required" },
         { status: 400 }
+      );
+    }
+
+    // Block re-capture of starter animal
+    if (animalId === STARTER_ANIMAL_ID) {
+      return NextResponse.json(
+        { error: "Cannot re-capture starter animal" },
+        { status: 403 }
       );
     }
 

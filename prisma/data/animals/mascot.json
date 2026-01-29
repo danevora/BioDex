@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "class": "Mythical",
+  "animals": [
+    {
+      "id": "spike",
+      "commonName": "Spike",
+      "scientificName": "Spikus mascotti",
+      "class": "Mythical",
+      "order": "Starter",
+      "family": "Mascotidae",
+      "dietaryGroup": "Omnivore",
+      "habitat": "BioDex app, greeting new Explorers",
+      "regions": ["Worldwide"],
+      "blurb": "The friendly mascot of BioDex! Spike is given to every new Explorer as their first discovery.",
+      "hint": "Your very first friend on BioDex!",
+      "isStarterAnimal": true
+    }
+  ]
+}

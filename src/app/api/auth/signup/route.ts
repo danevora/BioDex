@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
+import { grantStarterAnimal } from "@/lib/onboarding";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
       },
     });
+
+    // Grant starter animal and follow BioDex
+    await grantStarterAnimal(user.id);
 
     return NextResponse.json({
       success: true,
