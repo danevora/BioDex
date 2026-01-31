@@ -11,8 +11,13 @@ export interface FollowUser {
   isFollowing: boolean;
 }
 
-interface FollowListResponse {
-  users: FollowUser[];
+interface FollowersResponse {
+  followers: FollowUser[];
+  nextCursor: string | null;
+}
+
+interface FollowingResponse {
+  following: FollowUser[];
   nextCursor: string | null;
 }
 
@@ -22,33 +27,27 @@ interface FollowResponse {
   followerCount: number;
 }
 
-// Fetch followers list
-async function fetchFollowers(cursor?: string): Promise<FollowListResponse> {
-  const url = new URL("/api/user/followers", window.location.origin);
+// Fetch followers list for a user
+async function fetchUserFollowers(userId: string, cursor?: string): Promise<FollowersResponse> {
+  const url = new URL(`/api/users/${userId}/followers`, window.location.origin);
   if (cursor) {
     url.searchParams.set("cursor", cursor);
   }
   const response = await fetch(url.toString());
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error("Unauthorized");
-    }
     throw new Error("Failed to fetch followers");
   }
   return response.json();
 }
 
-// Fetch following list
-async function fetchFollowing(cursor?: string): Promise<FollowListResponse> {
-  const url = new URL("/api/user/following", window.location.origin);
+// Fetch following list for a user
+async function fetchUserFollowing(userId: string, cursor?: string): Promise<FollowingResponse> {
+  const url = new URL(`/api/users/${userId}/following`, window.location.origin);
   if (cursor) {
     url.searchParams.set("cursor", cursor);
   }
   const response = await fetch(url.toString());
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error("Unauthorized");
-    }
     throw new Error("Failed to fetch following");
   }
   return response.json();
@@ -86,15 +85,12 @@ async function unfollowUser(userId: string): Promise<FollowResponse> {
 }
 
 /**
- * Hook to fetch the current user's followers list with pagination
+ * Hook to fetch a user's followers list with pagination
  */
-export function useFollowers() {
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-
+export function useUserFollowers(userId: string | undefined) {
   return useInfiniteQuery({
-    queryKey: ["followers"],
-    queryFn: ({ pageParam }) => fetchFollowers(pageParam as string | undefined),
+    queryKey: ["followers", userId],
+    queryFn: ({ pageParam }) => fetchUserFollowers(userId!, pageParam as string | undefined),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     enabled: !!userId,
@@ -102,15 +98,12 @@ export function useFollowers() {
 }
 
 /**
- * Hook to fetch the list of users the current user is following with pagination
+ * Hook to fetch the list of users a user is following with pagination
  */
-export function useFollowing() {
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-
+export function useUserFollowing(userId: string | undefined) {
   return useInfiniteQuery({
-    queryKey: ["following"],
-    queryFn: ({ pageParam }) => fetchFollowing(pageParam as string | undefined),
+    queryKey: ["following", userId],
+    queryFn: ({ pageParam }) => fetchUserFollowing(userId!, pageParam as string | undefined),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     enabled: !!userId,

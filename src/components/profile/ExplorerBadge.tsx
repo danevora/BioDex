@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Calendar, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserProfile } from "@/hooks/useUserProfile";
+import { FollowListModal } from "./FollowListModal";
 
 interface ExplorerBadgeProps {
   profile: UserProfile;
@@ -34,8 +36,16 @@ export function ExplorerBadge({
   onEditClick,
   showEditButton = false,
 }: ExplorerBadgeProps) {
+  const [followModalOpen, setFollowModalOpen] = useState(false);
+  const [followModalType, setFollowModalType] = useState<"followers" | "following">("followers");
+
   const displayName = profile.username || "Explorer";
   const initials = getInitials(profile.username);
+
+  const openFollowModal = (type: "followers" | "following") => {
+    setFollowModalType(type);
+    setFollowModalOpen(true);
+  };
 
   return (
     <Card className="w-full">
@@ -87,15 +97,21 @@ export function ExplorerBadge({
 
               {/* Followers/Following */}
               <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
+                <button
+                  onClick={() => openFollowModal("followers")}
+                  className="flex items-center gap-1 hover:underline cursor-pointer"
+                >
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="font-semibold">{profile.followerCount}</span>
                   <span className="text-muted-foreground">followers</span>
-                </div>
-                <div>
+                </button>
+                <button
+                  onClick={() => openFollowModal("following")}
+                  className="hover:underline cursor-pointer"
+                >
                   <span className="font-semibold">{profile.followingCount}</span>
                   <span className="text-muted-foreground ml-1">following</span>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -113,6 +129,14 @@ export function ExplorerBadge({
           </div>
         </div>
       </CardContent>
+
+      <FollowListModal
+        open={followModalOpen}
+        onOpenChange={setFollowModalOpen}
+        type={followModalType}
+        userId={profile.id}
+        count={followModalType === "followers" ? profile.followerCount : profile.followingCount}
+      />
     </Card>
   );
 }
