@@ -23,61 +23,6 @@ export type IdentifyResult =
   | IdentifyNoMatchResult
   | IdentifyErrorResult;
 
-export interface SubmitAnimalResponse {
-  success: boolean;
-  animal?: {
-    id: string;
-    commonName: string;
-    scientificName: string;
-    class: string;
-    order: string;
-    family: string;
-    dietaryGroup: string;
-    habitat: string;
-    regions: string[];
-    blurb: string;
-    hint: string;
-  };
-  capture?: {
-    id: string;
-    animalId: string;
-    imageUrl: string;
-  };
-  error?: string;
-}
-
-export async function submitAnimal(
-  speciesName: string,
-  imageFile: File,
-  taxonomicClass?: string | null
-): Promise<SubmitAnimalResponse> {
-  const formData = new FormData();
-  const compressed = await compressImage(imageFile);
-  formData.append("image", compressed);
-  formData.append("speciesName", speciesName);
-  if (taxonomicClass) {
-    formData.append("taxonomicClass", taxonomicClass);
-  }
-
-  try {
-    const response = await fetch("/api/animals/submit", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      return { success: false, error: data.error || "Failed to submit animal" };
-    }
-    return data;
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Network error",
-    };
-  }
-}
-
 export async function compressImage(file: File, maxSizeMB = 3): Promise<File> {
   if (file.size <= maxSizeMB * 1024 * 1024) return file;
 

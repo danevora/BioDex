@@ -19,16 +19,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const classFilter = searchParams.get("class");
   const sort = searchParams.get("sort") || "name";
-  const review = searchParams.get("review") === "true";
-
   const where: Record<string, unknown> = {};
 
   if (classFilter) {
     where.class = classFilter;
-  }
-
-  if (review) {
-    where.isUserSubmitted = true;
   }
 
   const orderBy =

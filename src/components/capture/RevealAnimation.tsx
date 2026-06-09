@@ -1,20 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import type { Animal } from "@/types/animal";
 
 interface RevealAnimationProps {
   animal: Animal;
   imageUrl: string;
   onClose: () => void;
-  onReject?: () => void;
 }
 
-export function RevealAnimation({ animal, imageUrl, onClose, onReject }: RevealAnimationProps) {
+export function RevealAnimation({ animal, imageUrl, onClose }: RevealAnimationProps) {
   useEffect(() => {
     const duration = 2000;
     const end = Date.now() + duration;
@@ -135,21 +133,6 @@ export function RevealAnimation({ animal, imageUrl, onClose, onReject }: RevealA
         </Button>
       </motion.div>
 
-      {onReject && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="mt-2"
-        >
-          <button
-            onClick={onReject}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Wrong animal?
-          </button>
-        </motion.div>
-      )}
     </div>
   );
 }
@@ -157,37 +140,9 @@ export function RevealAnimation({ animal, imageUrl, onClose, onReject }: RevealA
 interface NoMatchResultProps {
   detectedAnimal: string | null;
   onTryAgain: () => void;
-  onSubmitAnimal?: (speciesName: string) => void;
-  isSubmitting?: boolean;
-  submitError?: string | null;
-  isCorrection?: boolean;
 }
 
-export function NoMatchResult({
-  detectedAnimal,
-  onTryAgain,
-  onSubmitAnimal,
-  isSubmitting,
-  submitError,
-  isCorrection: isInitialCorrection,
-}: NoMatchResultProps) {
-  const [speciesName, setSpeciesName] = useState(detectedAnimal || "");
-  const [isCorrecting, setIsCorrecting] = useState(isInitialCorrection || false);
-
-  const handleSubmit = () => {
-    const trimmed = speciesName.trim();
-    if (trimmed && onSubmitAnimal) {
-      onSubmitAnimal(trimmed);
-    }
-  };
-
-  const handleWrongAnimal = () => {
-    setIsCorrecting(true);
-    setSpeciesName("");
-  };
-
-  const showWrongAnimalButton = detectedAnimal && !isCorrecting;
-
+export function NoMatchResult({ detectedAnimal, onTryAgain }: NoMatchResultProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -198,61 +153,22 @@ export function NoMatchResult({
         <span className="text-4xl">?</span>
       </div>
 
-      <h3 className="text-xl font-semibold mb-2">
-        {isCorrecting ? "Correct Identification" : "Not in BioDex"}
-      </h3>
+      <h3 className="text-xl font-semibold mb-2">Not in BioDex</h3>
 
-      {isCorrecting ? (
-        <p className="text-muted-foreground mb-4">
-          Enter the correct species name below.
-        </p>
-      ) : detectedAnimal ? (
-        <p className="text-muted-foreground mb-4">
+      {detectedAnimal ? (
+        <p className="text-muted-foreground mb-6">
           We detected a <span className="font-medium">{detectedAnimal}</span>,
-          but it&apos;s not in the BioDex catalog yet.
+          but it&apos;s not in the catalog yet. Try a different photo!
         </p>
       ) : (
-        <p className="text-muted-foreground mb-4">
-          We couldn&apos;t identify an animal in this image.
+        <p className="text-muted-foreground mb-6">
+          We couldn&apos;t identify an animal in this image. Try a different photo!
         </p>
       )}
 
-      {onSubmitAnimal && (
-        <div className="w-full max-w-xs space-y-3 mb-4">
-          <Input
-            value={speciesName}
-            onChange={(e) => setSpeciesName(e.target.value)}
-            placeholder="Enter species name..."
-            disabled={isSubmitting}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSubmit();
-            }}
-          />
-          {submitError && (
-            <p className="text-sm text-red-600">{submitError}</p>
-          )}
-          <Button
-            onClick={handleSubmit}
-            disabled={!speciesName.trim() || isSubmitting}
-            className="w-full"
-          >
-            {isSubmitting ? "Adding..." : "Add to BioDex"}
-          </Button>
-        </div>
-      )}
-
-      <Button onClick={onTryAgain} variant="outline" disabled={isSubmitting}>
+      <Button onClick={onTryAgain} variant="outline">
         Try Another Photo
       </Button>
-
-      {showWrongAnimalButton && (
-        <button
-          onClick={handleWrongAnimal}
-          className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Wrong animal?
-        </button>
-      )}
     </motion.div>
   );
 }
