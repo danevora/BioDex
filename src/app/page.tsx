@@ -6,7 +6,7 @@ export default async function Home() {
   const session = await auth();
 
   if (session?.user) {
-    redirect("/feed");
+    redirect("/profile");
   }
 
   return <LandingPage />;
