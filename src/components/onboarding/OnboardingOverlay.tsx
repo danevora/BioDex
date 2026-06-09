@@ -7,7 +7,7 @@ const STEPS = [
   {
     title: "Welcome to BioDex!",
     description:
-      "This is your feed. Here you'll see discoveries from Explorers you follow. Like, comment, and get inspired to find new species!",
+      "This is your personal BioDex — a collection of every animal you've discovered. Colorful cards are species you've found. Grayscale ones are waiting to be discovered!",
   },
   {
     title: "Your BioDex",

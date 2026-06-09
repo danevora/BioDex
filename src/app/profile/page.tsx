@@ -9,7 +9,6 @@ import { AnimalDetail } from "@/components/AnimalDetail";
 import { CaptureButton, CaptureModal } from "@/components/capture";
 import { ExplorerBadge, ProfileEditModal } from "@/components/profile";
 import { MobileMenuButton } from "@/components/navigation/BottomNav";
-import { ExplorerSearch } from "@/components/feed";
 import { useAnimals } from "@/hooks/useAnimals";
 import { useCaptures, useCreateCapture, useDeleteCapture } from "@/hooks/useCaptures";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -169,7 +168,6 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between gap-4">
             <h1 className="text-xl font-bold">Your BioDex</h1>
             <div className="flex items-center gap-2">
-              <ExplorerSearch />
               <MobileMenuButton />
             </div>
           </div>

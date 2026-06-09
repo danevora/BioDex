@@ -21,9 +21,8 @@ interface ProfileEditModalProps {
 }
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
-const MAX_BIO_LENGTH = 160;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 function getInitials(username: string | null, email: string | null): string {
   if (username) return username.slice(0, 2).toUpperCase();
@@ -33,7 +32,6 @@ function getInitials(username: string | null, email: string | null): string {
 
 interface FormErrors {
   username?: string;
-  bio?: string;
   image?: string;
 }
 
@@ -48,7 +46,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState(profile.username || "");
-  const [bio, setBio] = useState(profile.bio || "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -84,17 +81,11 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Username validation
     if (username.trim()) {
       if (!USERNAME_REGEX.test(username)) {
         newErrors.username =
           "Username must be 3-20 characters, alphanumeric and underscores only";
       }
-    }
-
-    // Bio validation
-    if (bio.length > MAX_BIO_LENGTH) {
-      newErrors.bio = `Bio must be ${MAX_BIO_LENGTH} characters or less`;
     }
 
     setErrors(newErrors);
@@ -112,14 +103,12 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
     try {
       await updateProfile.mutateAsync({
         username: username.trim() || undefined,
-        bio: bio.trim() || undefined,
         ...(imageFile && { image: imageFile }),
       });
 
       onSuccess();
     } catch (error) {
       if (error instanceof Error) {
-        // Check for username conflict error
         if (error.message.includes("Username already taken")) {
           setErrors((prev) => ({ ...prev, username: "Username already taken" }));
         } else {
@@ -226,38 +215,6 @@ function ProfileEditForm({ profile, onSuccess, onCancel }: ProfileEditFormProps)
         <p className="mt-1 text-xs text-muted-foreground">
           Email cannot be changed
         </p>
-      </div>
-
-      {/* Bio */}
-      <div>
-        <label
-          htmlFor="bio"
-          className="block text-sm font-medium text-foreground mb-1"
-        >
-          Bio
-        </label>
-        <textarea
-          id="bio"
-          value={bio}
-          onChange={(e) => {
-            setBio(e.target.value);
-            if (errors.bio) {
-              setErrors((prev) => ({ ...prev, bio: undefined }));
-            }
-          }}
-          disabled={isLoading}
-          maxLength={MAX_BIO_LENGTH}
-          rows={3}
-          className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 resize-none"
-          placeholder="Tell us about yourself..."
-        />
-        {errors.bio ? (
-          <p className="mt-1 text-xs text-red-600">{errors.bio}</p>
-        ) : (
-          <p className="mt-1 text-xs text-muted-foreground text-right">
-            {bio.length}/{MAX_BIO_LENGTH}
-          </p>
-        )}
       </div>
 
       <DialogFooter className="flex flex-row justify-end gap-3 pt-2">

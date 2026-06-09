@@ -3,7 +3,6 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadProfileImage } from "@/lib/storage";
 
-// Username validation: alphanumeric with underscores, 3-20 chars
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 
 export async function GET() {
@@ -20,15 +19,12 @@ export async function GET() {
         id: true,
         username: true,
         email: true,
-        bio: true,
         image: true,
         hasOnboarded: true,
         createdAt: true,
         _count: {
           select: {
             captures: true,
-            followers: true,
-            following: true,
           },
         },
       },
@@ -42,12 +38,9 @@ export async function GET() {
       id: user.id,
       username: user.username,
       email: user.email,
-      bio: user.bio,
       image: user.image,
       hasOnboarded: user.hasOnboarded,
       createdAt: user.createdAt,
-      followerCount: user._count.followers,
-      followingCount: user._count.following,
       discoveryCount: user._count.captures,
     });
   } catch (error) {
@@ -69,10 +62,8 @@ export async function PATCH(request: Request) {
 
     const formData = await request.formData();
     const username = formData.get("username") as string | null;
-    const bio = formData.get("bio") as string | null;
     const imageFile = formData.get("image") as File | null;
 
-    // Validate username if provided
     if (username !== undefined) {
       if (username === null || username === "") {
         // Allow clearing username
@@ -85,7 +76,6 @@ export async function PATCH(request: Request) {
           { status: 400 }
         );
       } else {
-        // Check if username is already taken by another user
         const existingUser = await prisma.user.findUnique({
           where: { username },
           select: { id: true },
@@ -100,17 +90,6 @@ export async function PATCH(request: Request) {
       }
     }
 
-    // Validate bio length
-    if (bio !== undefined && bio !== null) {
-      if (bio.length > 160) {
-        return NextResponse.json(
-          { error: "Bio must be 160 characters or less" },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Handle profile image upload
     let imageUrl: string | undefined;
     if (imageFile && imageFile.size > 0) {
       try {
@@ -137,9 +116,6 @@ export async function PATCH(request: Request) {
     if (username !== null && username !== "") {
       updateData.username = username;
     }
-    if (bio !== null) {
-      updateData.bio = bio === "" ? null : bio;
-    }
     if (imageUrl) {
       updateData.image = imageUrl;
     }
@@ -151,14 +127,11 @@ export async function PATCH(request: Request) {
         id: true,
         username: true,
         email: true,
-        bio: true,
         image: true,
         createdAt: true,
         _count: {
           select: {
             captures: true,
-            followers: true,
-            following: true,
           },
         },
       },
@@ -168,11 +141,8 @@ export async function PATCH(request: Request) {
       id: updatedUser.id,
       username: updatedUser.username,
       email: updatedUser.email,
-      bio: updatedUser.bio,
       image: updatedUser.image,
       createdAt: updatedUser.createdAt,
-      followerCount: updatedUser._count.followers,
-      followingCount: updatedUser._count.following,
       discoveryCount: updatedUser._count.captures,
     });
   } catch (error) {

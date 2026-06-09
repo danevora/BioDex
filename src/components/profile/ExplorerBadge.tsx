@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Calendar, Users } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserProfile } from "@/hooks/useUserProfile";
-import { FollowListModal } from "./FollowListModal";
 
 interface ExplorerBadgeProps {
   profile: UserProfile;
@@ -36,16 +34,8 @@ export function ExplorerBadge({
   onEditClick,
   showEditButton = false,
 }: ExplorerBadgeProps) {
-  const [followModalOpen, setFollowModalOpen] = useState(false);
-  const [followModalType, setFollowModalType] = useState<"followers" | "following">("followers");
-
   const displayName = profile.username || "Explorer";
   const initials = getInitials(profile.username);
-
-  const openFollowModal = (type: "followers" | "following") => {
-    setFollowModalType(type);
-    setFollowModalOpen(true);
-  };
 
   return (
     <Card className="w-full">
@@ -75,10 +65,6 @@ export function ExplorerBadge({
               )}
             </div>
 
-            {profile.bio && (
-              <p className="mt-2 text-sm text-foreground">{profile.bio}</p>
-            )}
-
             {/* Join Date */}
             <div className="flex items-center justify-center sm:justify-start gap-1 mt-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
@@ -86,32 +72,12 @@ export function ExplorerBadge({
             </div>
 
             {/* Stats Row */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-4">
-              {/* Discovery Count */}
+            <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
               <div className="text-center sm:text-left">
                 <span className="font-bold text-lg">{profile.discoveryCount}</span>
                 <span className="text-muted-foreground text-sm ml-1">
                   species discovered
                 </span>
-              </div>
-
-              {/* Followers/Following */}
-              <div className="flex items-center gap-4 text-sm">
-                <button
-                  onClick={() => openFollowModal("followers")}
-                  className="flex items-center gap-1 hover:underline cursor-pointer"
-                >
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-semibold">{profile.followerCount}</span>
-                  <span className="text-muted-foreground">followers</span>
-                </button>
-                <button
-                  onClick={() => openFollowModal("following")}
-                  className="hover:underline cursor-pointer"
-                >
-                  <span className="font-semibold">{profile.followingCount}</span>
-                  <span className="text-muted-foreground ml-1">following</span>
-                </button>
               </div>
             </div>
 
@@ -129,14 +95,6 @@ export function ExplorerBadge({
           </div>
         </div>
       </CardContent>
-
-      <FollowListModal
-        open={followModalOpen}
-        onOpenChange={setFollowModalOpen}
-        type={followModalType}
-        userId={profile.id}
-        count={followModalType === "followers" ? profile.followerCount : profile.followingCount}
-      />
     </Card>
   );
 }

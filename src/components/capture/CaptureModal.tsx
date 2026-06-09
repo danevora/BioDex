@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,16 +22,10 @@ import { ImageUploader } from "./ImageUploader";
 import { ScanningAnimation } from "./ScanningAnimation";
 import { RevealAnimation, NoMatchResult } from "./RevealAnimation";
 import { identifyAnimal, submitAnimal, type IdentifyResult } from "@/lib/api";
-import { useCreatePost } from "@/hooks/useFeed";
 import type { Animal } from "@/types/animal";
 import type { Capture } from "@/types/animal";
 
 type CaptureStep = "upload" | "scanning" | "result" | "saving";
-
-interface ShareOptions {
-  shareToFeed: boolean;
-  caption: string;
-}
 
 interface CaptureModalProps {
   open: boolean;
@@ -59,9 +53,6 @@ export function CaptureModal({
   const [submittedCapture, setSubmittedCapture] = useState<{ id: string; animalId: string; imageUrl: string } | null>(null);
   const [isCorrection, setIsCorrection] = useState(false);
   const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
-  const pendingShareOptions = useRef<ShareOptions | undefined>(undefined);
-
-  const createPost = useCreatePost();
 
   const resetState = useCallback(() => {
     setStep("upload");
@@ -78,7 +69,6 @@ export function CaptureModal({
     setSubmittedCapture(null);
     setIsCorrection(false);
     setShowReplaceConfirm(false);
-    pendingShareOptions.current = undefined;
   }, [imagePreviewUrl]);
 
   const handleOpenChange = (open: boolean) => {
@@ -144,7 +134,6 @@ export function CaptureModal({
         blurb: response.animal.blurb,
         hint: response.animal.hint,
       });
-      // Switch result to matched state to trigger RevealAnimation
       setResult({
         success: true,
         matched: true,
@@ -158,40 +147,18 @@ export function CaptureModal({
     setIsSubmitting(false);
   };
 
-  const handleCapture = async (shareOptions?: ShareOptions) => {
+  const handleCapture = async () => {
     if (!result?.success || !result.matched || !selectedImage) return;
 
-    // Check if this animal is already discovered and needs confirmation
     const isAlreadyDiscovered = capturedAnimalIds?.has(result.animal_id);
     if (isAlreadyDiscovered && !showReplaceConfirm && !submittedCapture) {
-      pendingShareOptions.current = shareOptions;
       setShowReplaceConfirm(true);
       return;
     }
 
-    // If capture was already created server-side via submit, skip onCapture
     if (submittedCapture) {
-      setStep("saving");
-      setError(null);
-      try {
-        // Create post if sharing to feed
-        if (shareOptions?.shareToFeed && submittedCapture.id) {
-          try {
-            await createPost.mutateAsync({
-              captureId: submittedCapture.id,
-              caption: shareOptions.caption || undefined,
-            });
-          } catch {
-            console.error("Failed to share to feed, but capture was saved");
-          }
-        }
-        handleOpenChange(false);
-        return;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to save");
-        setStep("result");
-        return;
-      }
+      handleOpenChange(false);
+      return;
     }
 
     setStep("saving");
@@ -199,21 +166,7 @@ export function CaptureModal({
 
     try {
       const confidence = result.confidence;
-      const capture = await onCapture(result.animal_id, selectedImage, confidence);
-
-      // Create post if sharing to feed
-      if (shareOptions?.shareToFeed && capture?.id) {
-        try {
-          await createPost.mutateAsync({
-            captureId: capture.id,
-            caption: shareOptions.caption || undefined,
-          });
-        } catch {
-          // Post creation failed but capture succeeded - don't block closing
-          console.error("Failed to share to feed, but capture was saved");
-        }
-      }
-
+      await onCapture(result.animal_id, selectedImage, confidence);
       handleOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save capture");
@@ -235,13 +188,11 @@ export function CaptureModal({
 
   const handleConfirmReplace = () => {
     setShowReplaceConfirm(false);
-    handleCapture(pendingShareOptions.current);
-    pendingShareOptions.current = undefined;
+    handleCapture();
   };
 
   const handleCancelReplace = () => {
     setShowReplaceConfirm(false);
-    pendingShareOptions.current = undefined;
     handleOpenChange(false);
   };
 

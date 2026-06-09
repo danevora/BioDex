@@ -5,9 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Activity, BookOpen, LogOut, EllipsisVertical, Flag, Menu } from "lucide-react";
+import { BookOpen, LogOut, EllipsisVertical, Flag, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ExplorerSearch } from "@/components/feed";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Sheet,
@@ -23,11 +22,6 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  {
-    href: "/feed",
-    label: "Feed",
-    icon: Activity,
-  },
   {
     href: "/profile",
     label: "BioDex",
@@ -83,7 +77,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
       <div className="container mx-auto px-4">
         <div className="flex items-center h-16">
           <div className="flex items-center gap-1">
-            <Link href="/feed" className="mr-2">
+            <Link href="/profile" className="mr-2">
               <Image src="/icon.png" alt="BioDex" width={36} height={36} />
             </Link>
             {navItems.map((item) => {
@@ -109,7 +103,6 @@ function DesktopNav({ pathname }: { pathname: string }) {
             })}
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <ExplorerSearch />
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center justify-center h-10 w-10 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted">
