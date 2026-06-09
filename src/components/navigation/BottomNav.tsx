@@ -23,7 +23,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    href: "/profile",
+    href: "/",
     label: "BioDex",
     icon: BookOpen,
   },
@@ -77,7 +77,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
       <div className="container mx-auto px-4">
         <div className="flex items-center h-16">
           <div className="flex items-center gap-1">
-            <Link href="/profile" className="mr-2">
+            <Link href="/" className="mr-2">
               <Image src="/icon.png" alt="BioDex" width={36} height={36} />
             </Link>
             {navItems.map((item) => {
