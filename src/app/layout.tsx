@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { BottomNav } from "@/components/navigation";
 import { OnboardingProvider } from "@/components/providers/OnboardingProvider";
 import { OnboardingOverlay } from "@/components/onboarding/OnboardingOverlay";
@@ -32,15 +33,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
-          <QueryProvider>
-            <OnboardingProvider>
-              {children}
-              <BottomNav />
-              <OnboardingOverlay />
-            </OnboardingProvider>
-          </QueryProvider>
-        </SessionProvider>
+        <PostHogProvider>
+          <SessionProvider>
+            <QueryProvider>
+              <OnboardingProvider>
+                {children}
+                <BottomNav />
+                <OnboardingOverlay />
+              </OnboardingProvider>
+            </QueryProvider>
+          </SessionProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

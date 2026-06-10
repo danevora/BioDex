@@ -1,20 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Flag, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePostHog } from "posthog-js/react";
 
 const CATEGORIES = ["Misidentification", "Bug", "Inappropriate Content", "Other"] as const;
 type Category = (typeof CATEGORIES)[number];
 
 export default function ReportPage() {
   const router = useRouter();
+  const posthog = usePostHog();
   const [category, setCategory] = useState<Category>("Bug");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    posthog?.capture("issue_report_form_opened");
+  }, [posthog]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +44,12 @@ export default function ReportPage() {
         throw new Error(data.error || "Failed to submit report");
       }
 
+      posthog?.capture("issue_report_submitted", { category });
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      posthog?.capture("issue_report_failed", { category, error: message });
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }

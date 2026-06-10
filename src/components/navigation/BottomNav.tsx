@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { BookOpen, LogOut, EllipsisVertical, Flag, Menu } from "lucide-react";
+import { BookOpen, LogOut, EllipsisVertical, Flag, Leaf, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -111,6 +111,13 @@ function DesktopNav({ pathname }: { pathname: string }) {
               </PopoverTrigger>
               <PopoverContent align="end" className="w-48 p-1">
                 <Link
+                  href="/submit-animal"
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md transition-colors hover:bg-muted"
+                >
+                  <Leaf className="h-4 w-4" />
+                  Submit an Animal
+                </Link>
+                <Link
                   href="/report"
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md transition-colors hover:bg-muted"
                 >
@@ -146,6 +153,14 @@ export function MobileMenuButton() {
       <SheetContent side="bottom" className="rounded-t-xl pb-8">
         <SheetTitle className="sr-only">Menu</SheetTitle>
         <div className="flex flex-col gap-1 pt-2">
+          <Link
+            href="/submit-animal"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-3 py-3 text-sm font-medium rounded-md transition-colors hover:bg-muted"
+          >
+            <Leaf className="h-5 w-5" />
+            Submit an Animal
+          </Link>
           <Link
             href="/report"
             onClick={() => setOpen(false)}
